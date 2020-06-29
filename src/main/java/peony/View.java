@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,6 +37,7 @@ import java.util.List;
 public class View extends JFrame {
     private JSplitPane verticalSplit;
     private JFileChooser imageChooser = new JFileChooser();
+    private JDialog spriteChooser = new JDialog(this, "brexit", true);
     private JPanel leafPropertiesPanel = new JPanel();
     private JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
     private JPanel leafImagePropertiesPanel = new JPanel(new GridLayout(0, 2));
@@ -62,8 +64,8 @@ public class View extends JFrame {
     private JSpinner xScale = new JSpinner(this.xScaleModel);
     private JSpinner yScale = new JSpinner(this.yScaleModel);
     private JSpinner rotation = new JSpinner(this.rotationModel);
+    private JButton sprite = new JButton("Select Sprite");
     private JButton image = new JButton("Select Image");
-    private JTextField sprite = new JTextField(10);
     private JTextField displayName = new JTextField(10);
     private JList leafList = new JList(this.leafListModel);
     private JList mapList = new JList();
@@ -123,7 +125,12 @@ public class View extends JFrame {
         this.imageChooser.setAcceptAllFileFilterUsed(false);
         this.image.addActionListener((ActionEvent event) -> {
             int result = this.imageChooser.showOpenDialog(this);
-            System.out.println(result);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                System.out.println(this.imageChooser.getSelectedFile().getName());
+            }
+        });
+        this.sprite.addActionListener((ActionEvent event) -> {
+            this.spriteChooser.setVisible(true);
         });
         JTabbedPane propertiesTabs = new JTabbedPane();
         this.leafPropertiesPanel.setLayout(

@@ -1,0 +1,15 @@
+I had considered needing a seperate entity type but that is not true.
+Characters are not animated, at least in their normal selves, and thus using
+the sprite name 'aini' is to be expected. the code can detect certain names and
+magically give them stuff like proper names when speaking. I also think it
+would be cool if they could be given animated blinking but I will look into
+that maybe. I don't think that blinking should require a scripted update loop
+though btw, it should just be some kind of animation thingy that just plays,
+like how in the battles there are animations that are not controlled by the
+script.
+
+Implement parsing libgdx texture atlas format. Look at their code, it's
+a rat nest but one that is easy to imitate.
+
+Implement sprite list with a custom ListCellRenderer like it talks about here:
+https://docs.oracle.com/javase/tutorial/uiswing/components/combobox.html
