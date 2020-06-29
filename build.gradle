@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.10'
+    implementation 'com.fifesoft:rsyntaxtextarea:3.1.1'
+    testImplementation 'junit:junit:4.13'
+}
+
+application {
+    mainClassName = 'peony.App'
+}
