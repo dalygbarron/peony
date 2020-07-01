@@ -30,6 +30,7 @@ import javax.swing.BoxLayout;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ChangeListener;
 import java.util.List;
+import java.io.File;
 
 /**
  * Manages the program's user interface.
@@ -37,6 +38,7 @@ import java.util.List;
 public class View extends JFrame {
     private JSplitPane verticalSplit;
     private JFileChooser imageChooser = new JFileChooser();
+    private JFileChooser gameChooser = new JFileChooser();
     private JDialog spriteChooser = new JDialog(this, "brexit", true);
     private JPanel leafPropertiesPanel = new JPanel();
     private JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
@@ -117,6 +119,12 @@ public class View extends JFrame {
         addMenu.add(this.addPointButton);
         menuBar.add(fileMenu);
         menuBar.add(addMenu);
+        FileNameExtensionFilter gameFilter = new FileNameExtensionFilter(
+            "Readable game files",
+            "json"
+        );
+        this.gameChooser.setFileFilter(gameFilter);
+        this.gameChooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
             "Usable image files",
             "png"
@@ -337,7 +345,7 @@ public class View extends JFrame {
      * Adds an action listener to the load button.
      * @param listener is the listener to add.
      */
-    public void addloadListener(ActionListener listener) {
+    public void addLoadListener(ActionListener listener) {
         this.loadButton.addActionListener(listener);
     }
 
@@ -451,6 +459,19 @@ public class View extends JFrame {
      */
     public void addChangeDisplayNameListener(ActionListener listener) {
         this.displayName.addActionListener(listener);
+    }
+
+    /**
+     * Opens a dialog that lets you choose a game file, and then returns the
+     * result.
+     * @return the file found or null if they cancelled or something.
+     */
+    public File chooseGameFile() {
+        int result = this.gameChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return this.gameChooser.getSelectedFile();
+        }
+        return null;
     }
 
     /**

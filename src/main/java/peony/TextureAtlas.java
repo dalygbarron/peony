@@ -1,5 +1,16 @@
 package peony;
 
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Meant to rip off the libgdx texture atlas format.
  */
@@ -25,8 +36,12 @@ public class TextureAtlas {
     /**
      * Creates the texture atlas by giving it the file to read from.
      * @param filename is the name of the file that we are reading.
+     * @throws IOException if shit fucks up.
+     * @throws FileNotFoundException if the reading from file is not found
      */
-    public TextureAtlas(String filename) {
+    public TextureAtlas(String filename) throws IOException,
+        FileNotFoundException
+    {
         Toolkit t = Toolkit.getDefaultToolkit();
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         Image current = null;
@@ -36,33 +51,33 @@ public class TextureAtlas {
             if (line.trim().length() == 0) {
                 current = null;
             } else if (current == null) {
-                if (this.readTuple(reader) == 2) {
-                    this.readTuple(reader);
+                if (TextureAtlas.readTuple(reader) == 2) {
+                    TextureAtlas.readTuple(reader);
                 }
-                this.readTuple(reader);
-                this.readValue(reader);
+                TextureAtlas.readTuple(reader);
+                TextureAtlas.readValue(reader);
                 Image page = t.getImage(line);
                 images.add(page);
             } else {
                 Region region = new Region();
                 region.name = line;
                 region.image = current;
-                this.readValue(reader);
-                this.readTuple(reader);
+                TextureAtlas.readValue(reader);
+                TextureAtlas.readTuple(reader);
                 region.x = Integer.parseInt(tuple[0]);
                 region.y = Integer.parseInt(tuple[1]);
-                this.readTuple(reader);
+                TextureAtlas.readTuple(reader);
                 region.w = Integer.parseInt(tuple[0]);
                 region.h = Integer.parseInt(tuple[1]);
-                this.regions.add(region);
+                this.regions.put(region.name, region);
                 System.out.println("Adding region " + region.name);
-                if (this.readTuple(reader) == 4) {
-                    if (this.readTuple(reader) == 4) {
-                        this.readTuple(reader);
+                if (TextureAtlas.readTuple(reader) == 4) {
+                    if (TextureAtlas.readTuple(reader) == 4) {
+                        TextureAtlas.readTuple(reader);
                     }
                 }
-                this.readTuple(reader);
-                this.readValue(reader);
+                TextureAtlas.readTuple(reader);
+                TextureAtlas.readValue(reader);
             }
         }
     }
@@ -73,7 +88,7 @@ public class TextureAtlas {
      * @return the region or null if none by that name exists.
      */
     public Region getRegion(String name) {
-        return this.regions[name];
+        return this.regions.get(name);
     }
 
     private static String readValue(BufferedReader reader) throws IOException {

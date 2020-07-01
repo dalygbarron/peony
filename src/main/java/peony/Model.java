@@ -2,6 +2,7 @@ package peony;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 
 /**
  * The state of the data we are actually meant to be modifying with this here
@@ -10,8 +11,8 @@ import java.util.ArrayList;
 public class Model extends Artefact {
     private List<Leaf> leaves = new ArrayList<>();
     private int selected = -1;
+    private File file = null;
     private String name;
-    private String path;
 
     /**
      * Gives you the currently selected leaf.
@@ -87,6 +88,18 @@ public class Model extends Artefact {
     public void setName(String name) {
         this.name = name;
         this.dirty();
+    }
+
+    /**
+     * Makes the model load the game from the given file and makes it reflect
+     * that instead of what it has currently.
+     * @param file is the file to load from.
+     * @throws IllegalArgumentException if the file is no good for some reason.
+     */
+    public void load(File file) throws IllegalArgumentException {
+        throw new IllegalArgumentException(
+            "Haven't implemented this yet sorry"
+        );
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ChangeEvent;
+import java.io.File;
 
 /**
  * Does the logic stuff in the program.
@@ -47,6 +48,19 @@ public class Controller {
                 "The game is called %s",
                 this.model.getName()
             ));
+        });
+        // Loading.
+        this.view.addLoadListener((ActionEvent event) -> {
+            File file = this.view.chooseGameFile();
+            if (file != null) {
+                try {
+                    this.model.load(file);
+                } catch (IllegalArgumentException e) {
+                    this.view.displayError(
+                        "Loaded game not viable: " + e.getMessage()
+                    );
+                }
+            }
         });
         // Saving.
         this.view.addSaveListener((ActionEvent event) -> {
