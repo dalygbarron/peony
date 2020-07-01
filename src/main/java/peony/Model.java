@@ -1,6 +1,7 @@
 package peony;
 
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -74,6 +75,22 @@ public class Model extends Artefact {
     }
 
     /**
+     * Gives you the model's file.
+	 * @return the file
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * Sets the model's file.
+	 * @param file the file to set.
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	/**
      * Gives you the name of the game.
      * @return the name of the game.
      */
@@ -97,6 +114,9 @@ public class Model extends Artefact {
      * @throws IllegalArgumentException if the file is no good for some reason.
      */
     public void load(File file) throws IllegalArgumentException {
+    	String data = "{\"abba\": \"rgerg\"}";
+    	ObjectMapper mapper = new ObjectMapper();
+    	Map<String, String> content = mapper.readValue(data, Map.class);
         throw new IllegalArgumentException(
             "Haven't implemented this yet sorry"
         );

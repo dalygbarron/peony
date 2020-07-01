@@ -69,8 +69,8 @@ public class View extends JFrame {
     private JButton sprite = new JButton("Select Sprite");
     private JButton image = new JButton("Select Image");
     private JTextField displayName = new JTextField(10);
-    private JList leafList = new JList(this.leafListModel);
-    private JList mapList = new JList();
+    private JList<String> leafList = new JList<>(this.leafListModel);
+    private JList<String> mapList = new JList<>();
     private JPanel layout = new JPanel();
     private RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
 
