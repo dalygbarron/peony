@@ -64,6 +64,13 @@ public class Controller {
         });
         // Saving.
         this.view.addSaveListener((ActionEvent event) -> {
+            File file = this.model.getFile();
+            if (file == null) {
+                file = this.view.chooseGameFile();
+                if (file == null) return;
+                model.setFile(file);
+            }
+            // TODO: this is where the actual saving stuff is done.
             this.view.displayError("It's saving man, I swear");
             this.view.setSaveEnabled(false);
         });
@@ -121,7 +128,6 @@ public class Controller {
             Leaf leaf = this.model.getSelected();
             if (leaf == null) return;
             leaf.setRotation(this.view.getRotation());
-
         });
     }
 
