@@ -10,9 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.10'
     implementation 'com.fifesoft:rsyntaxtextarea:3.1.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
+    implementation 'org.json:json:20200518'
     testImplementation 'junit:junit:4.13'
 }
 

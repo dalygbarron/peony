@@ -2,34 +2,14 @@ package peony;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.GridLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.DefaultListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.BoxLayout;
-import javax.swing.event.ListSelectionListener;
+
+import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import java.util.List;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
@@ -57,14 +37,12 @@ public class View extends JFrame {
     private DefaultListModel<String> leafListModel = new DefaultListModel<>();
     private SpinnerNumberModel xPositionModel = View.makePositionModel();
     private SpinnerNumberModel yPositionModel = View.makePositionModel();
-    private SpinnerNumberModel xScaleModel = View.makeScaleModel();
-    private SpinnerNumberModel yScaleModel = View.makeScaleModel();
+    private SpinnerNumberModel scaleModel = View.makeScaleModel();
     private SpinnerNumberModel rotationModel = View.makeRotationModel();
     private JTextField leafName = new JTextField(10);
     private JSpinner xPosition = new JSpinner(this.xPositionModel);
     private JSpinner yPosition = new JSpinner(this.yPositionModel);
-    private JSpinner xScale = new JSpinner(this.xScaleModel);
-    private JSpinner yScale = new JSpinner(this.yScaleModel);
+    private JSpinner scale = new JSpinner(this.scaleModel);
     private JSpinner rotation = new JSpinner(this.rotationModel);
     private JButton sprite = new JButton("Select Sprite");
     private JButton image = new JButton("Select Image");
@@ -150,10 +128,8 @@ public class View extends JFrame {
         this.leafMainPropertiesPanel.add(this.xPosition);
         this.leafMainPropertiesPanel.add(new JLabel("Y Position"));
         this.leafMainPropertiesPanel.add(this.yPosition);
-        this.leafMainPropertiesPanel.add(new JLabel("X Scale"));
-        this.leafMainPropertiesPanel.add(this.xScale);
-        this.leafMainPropertiesPanel.add(new JLabel("Y Scale"));
-        this.leafMainPropertiesPanel.add(this.yScale);
+        this.leafMainPropertiesPanel.add(new JLabel("Scale"));
+        this.leafMainPropertiesPanel.add(this.scale);
         this.leafMainPropertiesPanel.add(new JLabel("Rotation"));
         this.leafMainPropertiesPanel.add(this.rotation);
         this.leafImagePropertiesPanel.add(new JLabel("Image"));
@@ -172,14 +148,14 @@ public class View extends JFrame {
         JPanel mapPropertiesPanel = new JPanel(new GridLayout(0, 2));
         mapPropertiesPanel.add(new JLabel("Name"));
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
-        propertiesTabs.addTab("Composition", mapPropertiesPanel);
+        propertiesTabs.addTab("Layout", mapPropertiesPanel);
         this.leafList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JTabbedPane mainTabs = new JTabbedPane();
         mainTabs.addTab("Layout", this.layout);
         mainTabs.addTab("Script", this.script);
         JTabbedPane listTabs = new JTabbedPane();
         listTabs.addTab("Leaves", this.leafList);
-        listTabs.addTab("Compositions", this.mapList);
+        listTabs.addTab("Layouts", this.mapList);
         this.verticalSplit = new JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
             propertiesTabs,
@@ -244,20 +220,16 @@ public class View extends JFrame {
      * Gives you the currently configured leaf scale.
      * @return the scale.
      */
-    public Point getScale() {
-        return new Point(
-            this.xScaleModel.getNumber().floatValue(),
-            this.yScaleModel.getNumber().floatValue()
-        );
+    public float getScale() {
+        return this.scaleModel.getNumber().floatValue();
     }
 
     /**
      * Sets the currently configured leaf scale.
      * @param scale is the scale to set it to.
      */
-    public void setScale(Point scale) {
-        this.xScaleModel.setValue(scale.getX());
-        this.yScaleModel.setValue(scale.getY());
+    public void setScale(float scale) {
+        this.scaleModel.setValue(scale);
     }
 
     /**
@@ -430,19 +402,11 @@ public class View extends JFrame {
     }
 
     /**
-     * Adds a listener onto the leaf x scale spinner.
+     * Adds a listener onto the leaf scale spinner.
      * @param listener is the listener.
      */
-    public void addChangeXScaleListener(ChangeListener listener) {
-        this.xScale.addChangeListener(listener);
-    }
-
-    /**
-     * Adds a listener onto the leaf y scale spinner.
-     * @param listener is the listener.
-     */
-    public void addChangeYScaleListener(ChangeListener listener) {
-        this.yScale.addChangeListener(listener);
+    public void addChangeScaleListener(ChangeListener listener) {
+        this.scale.addChangeListener(listener);
     }
 
     /**

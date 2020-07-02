@@ -1,0 +1,27 @@
+{
+  "name": "Bongo Arena",
+  "bgm": "tango",
+  "bgs": "seagull",
+  "leaves": [
+    {
+      "name": "point1",
+      "type": "point",
+      "x": 12,
+      "y": -32,
+      "scale": 1,
+      "rotation": 0
+    },
+    {
+      "name": "johnny",
+      "type": "sprite",
+      "x": 2,
+      "y": 100,
+      "scale": 0.5,
+      "rotation": 0.2,
+      "sprite": "johnny"
+    }
+  ],
+  "children": [
+    // more layouts
+  ]
+}

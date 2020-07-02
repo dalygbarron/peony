@@ -6,7 +6,7 @@ package peony;
 public abstract class Leaf extends Artefact {
     private String name = null;
     private Point position = new Point();
-    private Point scale = new Point(1);
+    private float scale = 0;
     private float rotation = 0;
 
     /**
@@ -38,8 +38,16 @@ public abstract class Leaf extends Artefact {
      * Gives you the leaf's scale which is mutable.
      * @return the scale.
      */
-    public Point getScale() {
+    public float getScale() {
         return this.scale;
+    }
+
+    /**
+     * Sets the leaf's scale.
+     * @param scale is the scale to set it to.
+     */
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     /**
@@ -62,7 +70,7 @@ public abstract class Leaf extends Artefact {
     /**
      * Takes a point in world coordinates and tells you whether that point is
      * in or on this leaf.
-     * @param pointX is the point.
+     * @param point is the point.
      * @return true if it is inside and false otherwise.
      */
     public boolean inside(Point point) {
@@ -70,8 +78,8 @@ public abstract class Leaf extends Artefact {
         float y = point.getY() - this.position.getY();
         float distance = (float)Math.sqrt(x * x + y * y);
         float angle = (float)Math.atan2(y, x) - this.rotation;
-        x = (float)Math.cos(angle) * distance * this.scale.getX();
-        y = (float)Math.sin(angle) * distance * this.scale.getY();
+        x = (float)Math.cos(angle) * distance * this.scale;
+        y = (float)Math.sin(angle) * distance * this.scale;
         return this.insideLocal(new Point(x, y));
     }
 

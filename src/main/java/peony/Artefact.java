@@ -8,7 +8,7 @@ public class Artefact {
     private boolean dirty = true;
 
     /**
-     * Tells you if this artefect has been changed since it was last saved. The
+     * Tells you if this artefact has been changed since it was last saved. The
      * default implementation is just to return 
      * @return true if this artefact or any of it's dependents are dirty.
      */

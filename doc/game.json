@@ -1,0 +1,11 @@
+{
+  "name": "Brexit Gone Wild",
+  "version": "1.2.3",
+  "textureAtlas": "sprites.atlas",
+  "options": {
+    "camel": "hellYeah"
+  },
+  "layouts": [
+    // some layouts
+  ]
+}

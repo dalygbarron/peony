@@ -1,11 +1,10 @@
 package peony;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
 
 public class App {
     public static void main(String[] args) {
@@ -22,14 +21,14 @@ public class App {
     private static void controller(View view, Model model) {
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
-            Leaf leaf = model.getSelected();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             String name = view.getLeafName();
             if (name.equals("")) {
                 view.displayError("Name cannot be blank");
                 return;
             }
-            if (model.getLeafByName(name) != null) {
+            if (model.getSelectedLayout().getLeafByName(name) != null) {
                 view.displayError(String.format(
                     "The name '%s' is already in use",
                     name
@@ -37,14 +36,14 @@ public class App {
                 return;
             }
             leaf.setName(name);
-            view.updateLeafList(model.getSelectedIndex(), name);
+            view.updateLeafList(model.getSelectedLeafIndex(), name);
             view.setSaveEnabled(true);
         });
         // Game properties button.
         view.addGamePropertiesListener((ActionEvent event) -> {
             view.displayError(String.format(
                 "The game is called %s",
-                model.getName()
+                model.getGame().getName()
             ));
         });
         // Loading.
@@ -94,36 +93,31 @@ public class App {
         });
         // Selecting a leaf in the list.
         view.addSelectLeafListener((ListSelectionEvent event) -> {
-            model.setSelected(view.getSelectedLeaf());
-            view.setLeaf(model.getSelected());
+            model.setSelectedLeaf(view.getSelectedLeaf());
+            view.setLeaf(model.getSelectedLeaf());
         });
         // Changing leaf position by form.
         view.addChangeXPositionListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelected();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setX(view.getPosition().getX());
             view.setSaveEnabled(true);
         });
         view.addChangeYPositionListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelected();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setY(view.getPosition().getY());
             view.setSaveEnabled(true);
         });
         // Changing leaf scale by form.
-        view.addChangeXScaleListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelected();
+        view.addChangeScaleListener((ChangeEvent event) -> {
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
-            leaf.getScale().setX(view.getScale().getX());
-        });
-        view.addChangeYScaleListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelected();
-            if (leaf == null) return;
-            leaf.getScale().setY(view.getScale().getY());
+            leaf.setScale(view.getScale());
         });
         // Changing leaf rotation by form.
         view.addChangeRotationListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelected();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.setRotation(view.getRotation());
         });
@@ -140,7 +134,7 @@ public class App {
     	String base = leaf.generateBaseName();
         for (int i = 1; i < Integer.MAX_VALUE; i++) {
             String name = String.format("%s%d", base, i);
-            Leaf owner = model.getLeafByName(name);
+            Leaf owner = model.getSelectedLayout().getLeafByName(name);
             if (owner == null) {
                 leaf.setName(name);
                 return;
@@ -157,7 +151,7 @@ public class App {
      */
     private static void addLeaf(View view, Model model, Leaf leaf) {
     	App.nameLeaf(view, model, leaf);
-        model.appendLeaf(leaf);
+        model.getSelectedLayout().getLeaves().add(leaf);
         view.appendLeafList(leaf.getName());
         view.setSaveEnabled(true);
     }

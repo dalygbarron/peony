@@ -2,6 +2,7 @@
 .project
 .classpath
 bin
+.idea
 .gradle
 build
 *.swp
