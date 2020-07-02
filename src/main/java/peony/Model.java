@@ -63,6 +63,15 @@ public class Model {
     }
 
     /**
+     * Sets the selected layout and sets the selected leaf to nothing.
+     * @param layout is the layout to set as selected.
+     */
+    public void setSelectedLayout(Layout layout) {
+        this.selectedLayout = layout;
+        this.selectedLeaf = -1;
+    }
+
+    /**
      * Gives you the model's file.
 	 * @return the file
 	 */

@@ -2,6 +2,8 @@ package peony;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -19,6 +21,8 @@ public class App {
      * @param model is the actual data stuff that is 
      */
     private static void controller(View view, Model model) {
+        view.setLayout(model.getSelectedLayout());
+        view.setLayouts(model.getGame().getLayouts());
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
@@ -91,6 +95,23 @@ public class App {
         view.addAddPointListener((ActionEvent event) -> {
             App.addLeaf(view, model, new PointLeaf());
         });
+        // Adding a new layout.
+        view.addAddLayoutListener((ActionEvent event) -> {
+            DefaultMutableTreeNode node = view.getSelectedMapNode();
+            Object content = node.getUserObject();
+            if (content instanceof Layout) {
+                Layout layout = (Layout)content;
+                // TODO: we need a function to create new child layouts, and
+                //  we also need functions for renaming layouts within their
+                //  group because we can not allow name clashes. Also, I just
+                //  had a cool idea, I will make it that all levels are
+                //  children of one top level level which is the first level
+                //  of the game to run every time and should be the menu or
+                //  whatever That means naming will always be taken care of
+                //  by a member function of layout.
+                layout.getChildren().add(newLayout);
+            }
+        });
         // Selecting a leaf in the list.
         view.addSelectLeafListener((ListSelectionEvent event) -> {
             model.setSelectedLeaf(view.getSelectedLeaf());
@@ -120,6 +141,17 @@ public class App {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.setRotation(view.getRotation());
+        });
+        // Selecting a layout in the map list.
+        view.addMapTreeListener((TreeSelectionEvent event) -> {
+            DefaultMutableTreeNode node = view.getSelectedMapNode();
+            Object content = node.getUserObject();
+            if (content instanceof Layout) {
+                model.setSelectedLayout((Layout)content);
+                view.setLayout((Layout)content);
+            } else {
+                System.out.println("yeah nah who cares");
+            }
         });
     	view.setVisible(true);
     }

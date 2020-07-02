@@ -6,7 +6,10 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,66 +19,42 @@ import java.io.File;
  * Manages the program's user interface.
  */
 public class View extends JFrame {
-    private JSplitPane verticalSplit;
-    private JFileChooser imageChooser = new JFileChooser();
-    private JFileChooser gameChooser = new JFileChooser();
-    private JDialog spriteChooser = new JDialog(this, "brexit", true);
-    private JPanel leafPropertiesPanel = new JPanel();
-    private JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
-    private JPanel leafImagePropertiesPanel = new JPanel(new GridLayout(0, 2));
-    private JPanel leafSpritePropertiesPanel = new JPanel(new GridLayout(0, 2));
-    private JPanel leafShapePropertiesPanel = new JPanel(new GridLayout(0, 2));
-    private JMenuItem gamePropertiesButton = new JMenuItem("Game Properties");
-    private JMenuItem loadButton = new JMenuItem("Load");
-    private JMenuItem saveButton = new JMenuItem("Save");
-    private JMenuItem quitButton = new JMenuItem("Exit");
-    private JMenuItem addImageButton = new JMenuItem("Image");
-    private JMenuItem addSpriteButton = new JMenuItem("Sprite");
-    private JMenuItem addShapeButton = new JMenuItem("Shape");
-    private JMenuItem addPointButton = new JMenuItem("Point");
-    private JMenuItem removeButton = new JMenuItem("Remove");
-    private DefaultListModel<String> leafListModel = new DefaultListModel<>();
-    private SpinnerNumberModel xPositionModel = View.makePositionModel();
-    private SpinnerNumberModel yPositionModel = View.makePositionModel();
-    private SpinnerNumberModel scaleModel = View.makeScaleModel();
-    private SpinnerNumberModel rotationModel = View.makeRotationModel();
-    private JTextField leafName = new JTextField(10);
-    private JSpinner xPosition = new JSpinner(this.xPositionModel);
-    private JSpinner yPosition = new JSpinner(this.yPositionModel);
-    private JSpinner scale = new JSpinner(this.scaleModel);
-    private JSpinner rotation = new JSpinner(this.rotationModel);
-    private JButton sprite = new JButton("Select Sprite");
-    private JButton image = new JButton("Select Image");
-    private JTextField displayName = new JTextField(10);
-    private JList<String> leafList = new JList<>(this.leafListModel);
-    private JList<String> mapList = new JList<>();
-    private JPanel layout = new JPanel();
-    private RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
-
-    /**
-     * Makes a position spinner model. This is just a helper since I have to do
-     * it multiple times and it's bulky and repetitive.
-     * @return the fresh new model straight outta the womb.
-     */
-    public static SpinnerNumberModel makePositionModel() {
-        return new SpinnerNumberModel(0.0, -400.0, 400.0, 1.0);
-    }
-
-    /**
-     * Makes a scale spinner model.
-     * @return the model made.
-     */
-    public static SpinnerNumberModel makeScaleModel() {
-        return new SpinnerNumberModel(1.0, 0.0001, 8.0, 0.25);
-    }
-
-    /**
-     * Makes a rotation spinner model.
-     * @return the model.
-     */
-    public static SpinnerNumberModel makeRotationModel() {
-        return new SpinnerNumberModel(0, -Math.PI, Math.PI, 0.3);
-    }
+    private final JTree mapTree = new JTree();
+    private final JSplitPane verticalSplit;
+    private final JFileChooser imageChooser = new JFileChooser();
+    private final JFileChooser gameChooser = new JFileChooser();
+    private final JDialog spriteChooser = new JDialog(this, "brexit", true);
+    private final JPanel leafPropertiesPanel = new JPanel();
+    private final JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
+    private final JPanel leafImagePropertiesPanel = new JPanel(new GridLayout(0, 2));
+    private final JPanel leafSpritePropertiesPanel = new JPanel(new GridLayout(0, 2));
+    private final JPanel leafShapePropertiesPanel = new JPanel(new GridLayout(0, 2));
+    private final JMenuItem gamePropertiesButton = new JMenuItem("Game Properties");
+    private final JMenuItem loadButton = new JMenuItem("Load");
+    private final JMenuItem saveButton = new JMenuItem("Save");
+    private final JMenuItem quitButton = new JMenuItem("Exit");
+    private final JMenuItem addImageButton = new JMenuItem("Image");
+    private final JMenuItem addSpriteButton = new JMenuItem("Sprite");
+    private final JMenuItem addShapeButton = new JMenuItem("Shape");
+    private final JMenuItem addPointButton = new JMenuItem("Point");
+    private final JMenuItem addLayoutButton = new JMenuItem("Layout");
+    private final JMenuItem removeButton = new JMenuItem("Remove");
+    private final DefaultListModel<String> leafListModel = new DefaultListModel<>();
+    private final SpinnerNumberModel xPositionModel = View.makePositionModel();
+    private final SpinnerNumberModel yPositionModel = View.makePositionModel();
+    private final SpinnerNumberModel scaleModel = View.makeScaleModel();
+    private final SpinnerNumberModel rotationModel = View.makeRotationModel();
+    private final JTextField leafName = new JTextField(10);
+    private final JSpinner xPosition = new JSpinner(this.xPositionModel);
+    private final JSpinner yPosition = new JSpinner(this.yPositionModel);
+    private final JSpinner scale = new JSpinner(this.scaleModel);
+    private final JSpinner rotation = new JSpinner(this.rotationModel);
+    private final JButton sprite = new JButton("Select Sprite");
+    private final JButton image = new JButton("Select Image");
+    private final JTextField displayName = new JTextField(10);
+    private final JList<String> leafList = new JList<>(this.leafListModel);
+    private final JPanel layout = new JPanel();
+    private final RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
 
     /**
      * Creates and sets up the view.
@@ -83,7 +62,9 @@ public class View extends JFrame {
     public View() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
-        this.script.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        this.script.setSyntaxEditingStyle(
+            SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
+        );
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(this.loadButton);
@@ -95,6 +76,7 @@ public class View extends JFrame {
         addMenu.add(this.addSpriteButton);
         addMenu.add(this.addShapeButton);
         addMenu.add(this.addPointButton);
+        addMenu.add(this.addLayoutButton);
         menuBar.add(fileMenu);
         menuBar.add(addMenu);
         FileNameExtensionFilter gameFilter = new FileNameExtensionFilter(
@@ -155,7 +137,7 @@ public class View extends JFrame {
         mainTabs.addTab("Script", this.script);
         JTabbedPane listTabs = new JTabbedPane();
         listTabs.addTab("Leaves", this.leafList);
-        listTabs.addTab("Layouts", this.mapList);
+        listTabs.addTab("Layouts", this.mapTree);
         this.verticalSplit = new JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
             propertiesTabs,
@@ -193,6 +175,15 @@ public class View extends JFrame {
      */
     public int getSelectedLeaf() {
         return this.leafList.getSelectedIndex();
+    }
+
+    /**
+     * Gives you the currently selected node in the map tree thingy.
+     * @return the currently selected node if any.
+     */
+    public DefaultMutableTreeNode getSelectedMapNode() {
+        Object node = mapTree.getLastSelectedPathComponent();
+        return (DefaultMutableTreeNode)node;
     }
 
     /**
@@ -280,6 +271,30 @@ public class View extends JFrame {
     }
 
     /**
+     * Recreates the leaf list and stuff for a new layout selection.
+     * @param layout is the layout selected.
+     */
+    public void setLayout(Layout layout) {
+        this.leafListModel.clear();
+        for (Leaf leaf: layout.getLeaves()) {
+            this.leafListModel.addElement(leaf.getName());
+        }
+    }
+
+    /**
+     * Recreates the layout list, and tries to keep whatever one is selected
+     * selected as long as it exists in the new list.
+     * @param layouts is the list of layouts to create the thingy from.
+     */
+    public void setLayouts(java.util.List<Layout> layouts) {
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Layouts");
+        for (Layout layout: layouts) {
+            top.add(View.layoutNode(layout));
+        }
+        this.mapTree.setModel(new DefaultTreeModel(top));
+    }
+
+    /**
      * Adds a leaf name onto the end of the leaf list.
      * @param name is the leaf name to add.
      */
@@ -290,10 +305,18 @@ public class View extends JFrame {
     /**
      * Updates the name of a leaf in the leaf list.
      * @param index is the index in the list to update.
-     * @param leaf  is the leaf to update it to respect.
+     * @param name  is the name of the leaf name to set.
      */
     public void updateLeafList(int index, String name) {
         this.leafListModel.set(index, name);
+    }
+
+    /**
+     * Adds a listener to find out when an item is chosen in the map tree.
+     * @param listener is the listener to add.
+     */
+    public void addMapTreeListener(TreeSelectionListener listener) {
+        this.mapTree.addTreeSelectionListener(listener);
     }
 
     /**
@@ -367,6 +390,14 @@ public class View extends JFrame {
      */
     public void addAddPointListener(ActionListener listener) {
         this.addPointButton.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener to listen to the add layout button.
+     * @param listener is the listener to add.
+     */
+    public void addAddLayoutListener(ActionListener listener) {
+        this.addLayoutButton.addActionListener(listener);
     }
 
     /**
@@ -444,5 +475,54 @@ public class View extends JFrame {
      */
     public void displayError(String message) {
         JOptionPane.showMessageDialog(this, message);
+    }
+
+    /**
+     * Makes a position spinner model. This is just a helper since I have to do
+     * it multiple times and it's bulky and repetitive.
+     * @return the fresh new model straight outta the womb.
+     */
+    private static SpinnerNumberModel makePositionModel() {
+        return new SpinnerNumberModel(
+            0.0,
+            -400.0,
+            400.0,
+            1.0
+        );
+    }
+
+    /**
+     * Makes a scale spinner model.
+     * @return the model made.
+     */
+    private static SpinnerNumberModel makeScaleModel() {
+        return new SpinnerNumberModel(
+            1.0,
+            0.0001,
+            8.0,
+            0.25
+        );
+    }
+
+    /**
+     * Makes a rotation spinner model.
+     * @return the model.
+     */
+    private static SpinnerNumberModel makeRotationModel() {
+        return new SpinnerNumberModel(0, -Math.PI, Math.PI, 0.3);
+    }
+
+    /**
+     * Creates a node in the layout tree for a given layout and recursively
+     * does it's children.
+     * @param layout is the layout to create for.
+     * @return the created node.
+     */
+    private static DefaultMutableTreeNode layoutNode(Layout layout) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(layout);
+        for (Layout child: layout.getChildren()) {
+            node.add(View.layoutNode(child));
+        }
+        return node;
     }
 }
