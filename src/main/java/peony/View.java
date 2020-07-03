@@ -10,6 +10,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,7 +61,7 @@ public class View extends JFrame {
     /**
      * Creates and sets up the view.
      */
-    public View() {
+    public View(Game game) {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
         this.script.setSyntaxEditingStyle(
@@ -129,6 +131,11 @@ public class View extends JFrame {
         this.leafPropertiesPanel.add(this.leafShapePropertiesPanel);
         JPanel mapPropertiesPanel = new JPanel(new GridLayout(0, 2));
         mapPropertiesPanel.add(new JLabel("Name"));
+        this.mapTree.getSelectionModel().setSelectionMode(
+            TreeSelectionModel.SINGLE_TREE_SELECTION
+        );
+        this.mapTree.setEditable(true);
+        this.mapTree.setModel(game);
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
         this.leafList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -181,9 +188,8 @@ public class View extends JFrame {
      * Gives you the currently selected node in the map tree thingy.
      * @return the currently selected node if any.
      */
-    public DefaultMutableTreeNode getSelectedMapNode() {
-        Object node = mapTree.getLastSelectedPathComponent();
-        return (DefaultMutableTreeNode)node;
+    public Layout getSelectedLayout() {
+        return (Layout)mapTree.getLastSelectedPathComponent();
     }
 
     /**
@@ -279,19 +285,6 @@ public class View extends JFrame {
         for (Leaf leaf: layout.getLeaves()) {
             this.leafListModel.addElement(leaf.getName());
         }
-    }
-
-    /**
-     * Recreates the layout list, and tries to keep whatever one is selected
-     * selected as long as it exists in the new list.
-     * @param layouts is the list of layouts to create the thingy from.
-     */
-    public void setLayouts(java.util.List<Layout> layouts) {
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Layouts");
-        for (Layout layout: layouts) {
-            top.add(View.layoutNode(layout));
-        }
-        this.mapTree.setModel(new DefaultTreeModel(top));
     }
 
     /**

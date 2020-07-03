@@ -19,7 +19,7 @@ public class Artefact {
     /**
      * Sets this artefact as dirty.
      */
-    protected void dirty() {
+    protected final void dirty() {
         this.dirty = true;
     }
 }

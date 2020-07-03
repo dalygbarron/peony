@@ -10,8 +10,8 @@ import java.io.File;
 
 public class App {
     public static void main(String[] args) {
-        View view = new View();
         Model model = new Model();
+        View view = new View(model.getGame());
         App.controller(view, model);
     }
     
@@ -21,8 +21,8 @@ public class App {
      * @param model is the actual data stuff that is 
      */
     private static void controller(View view, Model model) {
-        view.setLayout(model.getSelectedLayout());
-        view.setLayouts(model.getGame().getLayouts());
+        // view.setLayout(model.getSelectedLayout());
+        // view.setLayouts(model.getGame().getFirstLayout());
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
@@ -97,10 +97,9 @@ public class App {
         });
         // Adding a new layout.
         view.addAddLayoutListener((ActionEvent event) -> {
-            DefaultMutableTreeNode node = view.getSelectedMapNode();
-            Object content = node.getUserObject();
-            if (content instanceof Layout) {
-                Layout layout = (Layout)content;
+            Layout layout = view.getSelectedLayout();
+            if (layout != null) {
+                layout.createChild();
                 // TODO: we need a function to create new child layouts, and
                 //  we also need functions for renaming layouts within their
                 //  group because we can not allow name clashes. Also, I just
@@ -109,7 +108,8 @@ public class App {
                 //  of the game to run every time and should be the menu or
                 //  whatever That means naming will always be taken care of
                 //  by a member function of layout.
-                layout.getChildren().add(newLayout);
+            } else {
+                view.displayError("No selected layout");
             }
         });
         // Selecting a leaf in the list.
@@ -144,7 +144,13 @@ public class App {
         });
         // Selecting a layout in the map list.
         view.addMapTreeListener((TreeSelectionEvent event) -> {
+            return;
+            /*
             DefaultMutableTreeNode node = view.getSelectedMapNode();
+            if (node == null) {
+                view.displayError("fuck");
+                return;
+            }
             Object content = node.getUserObject();
             if (content instanceof Layout) {
                 model.setSelectedLayout((Layout)content);
@@ -152,6 +158,7 @@ public class App {
             } else {
                 System.out.println("yeah nah who cares");
             }
+             */
         });
     	view.setVisible(true);
     }

@@ -9,17 +9,28 @@ import java.util.List;
  * One layout thingy
  */
 public class Layout extends Artefact {
-    private List<Leaf> leaves;
     private String name;
+    private List<Leaf> leaves;
     private List<Layout> children;
+    private Layout parent;
 
     /**
      * default constructor which sets it how it should be if the program is
      * opened up without a given game.
      */
     public Layout() {
+        this.name = "start";
         this.leaves = new ArrayList<>();
-        this.name = "Some Joint";
+        this.children = new ArrayList<>();
+    }
+
+    /**
+     * Slightly less default constructor
+     * @param name is the name to give to the layout.
+     */
+    public Layout(String name) {
+        this.name = name;
+        this.leaves = new ArrayList<>();
         this.children = new ArrayList<>();
     }
 
@@ -67,6 +78,60 @@ public class Layout extends Artefact {
      */
     public List<Layout> getChildren() {
         return this.children;
+    }
+
+    /**
+     * Finds a child layout of this layout by it's name.
+     * @param name is the name we are looking for.
+     * @return the child layout if found or null.
+     */
+    public Layout getChildByName(String name) {
+        for (Layout child: this.children) {
+            if (child.getName().equals(name)) return child;
+        }
+        return null;
+    }
+
+    /**
+     * Creates a child layout with a non clashing name.
+     */
+    public void createChild() {
+        String base = "layout";
+        String name = base;
+        for (int i = 1; i < Integer.MAX_VALUE; i++) {
+            Layout existing = this.getChildByName(name);
+            if (existing == null) {
+                this.children.add(new Layout(name));
+                this.dirty();
+                return;
+            }
+            name = String.format("%s%d", base, i);
+        }
+    }
+
+    /**
+     * Gives you this layout's parent.
+     * @return the parent.
+     */
+    public Layout getParent() {
+        return this.parent;
+    }
+
+    /**
+     * Sets the parent of this layout.
+     * @param parent is the parent to give it.
+     */
+    public void setParent(Layout parent) {
+        this.parent = parent;
+        this.dirty();
+    }
+
+    @Override
+    public boolean isDirty() {
+        for (Layout child: this.children) {
+            if (child.isDirty()) return true;
+        }
+        return super.isDirty();
     }
 
     @Override

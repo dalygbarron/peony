@@ -19,7 +19,7 @@ public class Model {
      */
     Model() {
         this.game = new Game();
-        this.selectedLayout = this.game.getLayouts().get(0);
+        this.selectedLayout = this.game.getFirstLayout();
     }
 
     /**
