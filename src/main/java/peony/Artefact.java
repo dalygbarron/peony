@@ -1,11 +1,19 @@
 package peony;
 
+import org.json.JSONObject;
+
 /**
  * Represents anything that actually needs to be saved into the game file, and
  * thus needs to record when it has been edited.
  */
-public class Artefact {
+public abstract class Artefact {
     private boolean dirty = true;
+
+    /**
+     * Converts this artefact into a json object.
+     * @return the created json object representing this artefact.
+     */
+    public abstract JSONObject toJson();
 
     /**
      * Tells you if this artefact has been changed since it was last saved. The

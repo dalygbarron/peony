@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.tree.TreePath;
@@ -159,6 +160,19 @@ public class Layout extends Artefact {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONArray leaves = new JSONArray();
+        JSONArray children = new JSONArray();
+        for (Layout child: this.getChildren()) children.put(child.toJson());
+        for (Leaf leaf: this.getLeaves()) leaves.put(leaf.toJson());
+        JSONObject json = new JSONObject();
+        json.put("name", this.name);
+        json.put("leaves", leaves);
+        json.put("children", children);
+        return json;
     }
 
     /**

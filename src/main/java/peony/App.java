@@ -3,7 +3,6 @@ package peony;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -68,6 +67,7 @@ public class App {
         });
         // Saving.
         view.addSaveListener((ActionEvent event) -> {
+            System.out.println(model.getGame().toJson());
             File file = model.getFile();
             if (file == null) {
                 file = view.chooseGameFile();

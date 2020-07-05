@@ -147,19 +147,11 @@ public class Game extends Artefact implements TreeModel {
     }
 
     /**
-     * Creates a game from a json representation of one.
-     * @param json is the json to create it from.
-     * @return a result containing the game unless it fucks up.
-     */
-    public static Result<Game> fromJson(JSONObject json) {
-        return Result.fail("not implmented");
-    }
-
-    /**
      * Tells the listeners that something beautiful has happened.
      * @param point the point in the tree where the change has occurred.
      */
     private void changeEvent(Layout point) {
+        this.dirty();
         TreeModelEvent event = new TreeModelEvent(
             this,
             point.getLineage()
@@ -167,6 +159,25 @@ public class Game extends Artefact implements TreeModel {
         for (TreeModelListener listener: this.treeModelListeners) {
             listener.treeStructureChanged(event);
         }
+    }
+
+    /**
+     * Recreates the game based on a json object.
+     * @param json is the json object to become.
+     * @return result with the game on success.
+     */
+    public static Result<Game> fromJson(JSONObject json) {
+        return Result.fail("not implement");
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("name", this.name);
+        json.put("version", this.version);
+        // TODO: texture atlas and options.
+        json.put("layout", this.firstLayout.toJson());
+        return json;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package peony;
 
+import org.json.JSONObject;
+
 /**
  * A thing that can be overlaid into a composition and has a form in 2d space.
  */
@@ -106,4 +108,14 @@ public abstract class Leaf extends Artefact {
      * @return String the base of the name the leaf should be given
      */
     public abstract String generateBaseName();
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("name", this.name);
+        json.put("position", this.position.toJson());
+        json.put("scale", this.scale);
+        json.put("rotation", this.rotation);
+        return json;
+    }
 }

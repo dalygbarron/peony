@@ -1,5 +1,7 @@
 package peony;
 
+import org.json.JSONObject;
+
 /**
  * Represents a point or vector or whatever in 2d space.
  */
@@ -95,5 +97,22 @@ public class Point extends Artefact {
      */
     public float length() {
         return (float)Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    /**
+     * Converts a json object to a point unless it fucks up.
+     * @param json is the object to convert.
+     * @return a result that has the created object if the input was valid.
+     */
+    public static Result<Point> fromJson(JSONObject json) {
+        return Result.fail("Not implemented it yet.");
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("x", this.x);
+        json.put("y", this.y);
+        return json;
     }
 }

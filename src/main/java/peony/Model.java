@@ -99,6 +99,7 @@ public class Model {
      * Makes the model load the game from the given file and makes it reflect
      * that instead of what it has currently.
      * @param file is the file to load from.
+     * @return result thingy which has an error message on fail.
      */
     public Result<Boolean> load(File file) {
         Result<JSONObject> json = Util.readJson(file);
@@ -114,6 +115,7 @@ public class Model {
      * file right now it just causes a nuisance for you instead.
      */
     public Result<Boolean> save() {
+
         return Result.fail("haven't implemented");
     }
 }
