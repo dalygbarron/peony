@@ -11,7 +11,10 @@ import java.io.File;
 public class App {
     public static void main(String[] args) {
         Model model = new Model();
-        View view = new View(model.getGame());
+        View view = new View(
+            model.getGame(),
+            new LayoutTransferHandler(model.getGame())
+        );
         App.controller(view, model);
     }
     
@@ -99,15 +102,7 @@ public class App {
         view.addAddLayoutListener((ActionEvent event) -> {
             Layout layout = view.getSelectedLayout();
             if (layout != null) {
-                layout.createChild();
-                // TODO: we need a function to create new child layouts, and
-                //  we also need functions for renaming layouts within their
-                //  group because we can not allow name clashes. Also, I just
-                //  had a cool idea, I will make it that all levels are
-                //  children of one top level level which is the first level
-                //  of the game to run every time and should be the menu or
-                //  whatever That means naming will always be taken care of
-                //  by a member function of layout.
+                model.getGame().createLayout(layout);
             } else {
                 view.displayError("No selected layout");
             }
@@ -144,21 +139,11 @@ public class App {
         });
         // Selecting a layout in the map list.
         view.addMapTreeListener((TreeSelectionEvent event) -> {
-            return;
-            /*
-            DefaultMutableTreeNode node = view.getSelectedMapNode();
-            if (node == null) {
-                view.displayError("fuck");
-                return;
+            Layout layout = view.getSelectedLayout();
+            if (layout != null) {
+                model.setSelectedLayout(layout);
+                view.setLayout(layout);
             }
-            Object content = node.getUserObject();
-            if (content instanceof Layout) {
-                model.setSelectedLayout((Layout)content);
-                view.setLayout((Layout)content);
-            } else {
-                System.out.println("yeah nah who cares");
-            }
-             */
         });
     	view.setVisible(true);
     }

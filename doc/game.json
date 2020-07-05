@@ -5,7 +5,8 @@
   "options": {
     "camel": "hellYeah"
   },
-  "layouts": [
-    // some layouts
-  ]
+  "layout": {
+    // Yes the game stores a single top layout which the game always
+    // starts on.
+  }
 }

@@ -21,7 +21,7 @@ import java.io.File;
  * Manages the program's user interface.
  */
 public class View extends JFrame {
-    private final JTree mapTree = new JTree();
+    private final PigTree mapTree = new PigTree();
     private final JSplitPane verticalSplit;
     private final JFileChooser imageChooser = new JFileChooser();
     private final JFileChooser gameChooser = new JFileChooser();
@@ -60,8 +60,13 @@ public class View extends JFrame {
 
     /**
      * Creates and sets up the view.
+     * @param game                  is the game object which the layout tree
+     *                              reflects.
+     * @param layoutTransferHandler is the transfer handler that handles it
+     *                              when layouts are moved around the tree of
+     *                              layouts.
      */
-    public View(Game game) {
+    public View(Game game, TransferHandler layoutTransferHandler) {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
         this.script.setSyntaxEditingStyle(
@@ -135,6 +140,9 @@ public class View extends JFrame {
             TreeSelectionModel.SINGLE_TREE_SELECTION
         );
         this.mapTree.setEditable(true);
+        this.mapTree.setDragEnabled(true);
+        this.mapTree.setDropMode(DropMode.ON_OR_INSERT);
+        this.mapTree.setTransferHandler(layoutTransferHandler);
         this.mapTree.setModel(game);
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
@@ -250,29 +258,39 @@ public class View extends JFrame {
      * @param leaf is the leaf to set stuff based on.
      */
     public void setLeaf(Leaf leaf) {
-        this.setPosition(leaf.getPosition());
-        this.setScale(leaf.getScale());
-        this.setRotation(leaf.getRotation());
-        this.leafName.setText(leaf.getName());
-        if (leaf instanceof ImageLeaf) {
-            this.leafImagePropertiesPanel.setVisible(true);
-            this.leafSpritePropertiesPanel.setVisible(false);
-            this.leafShapePropertiesPanel.setVisible(false);
-            this.verticalSplit.resetToPreferredSizes();
-        } else if (leaf instanceof SpriteLeaf) {
-            this.leafImagePropertiesPanel.setVisible(false);
-            this.leafSpritePropertiesPanel.setVisible(true);
-            this.leafShapePropertiesPanel.setVisible(false);
-            this.verticalSplit.resetToPreferredSizes();
-        } else if (leaf instanceof ShapeLeaf) {
+        if (leaf == null) {
+            this.setPosition(new Point());
+            this.setScale(0);
+            this.setRotation(0);
+            this.leafName.setText("");
             this.leafImagePropertiesPanel.setVisible(false);
             this.leafSpritePropertiesPanel.setVisible(false);
-            this.leafShapePropertiesPanel.setVisible(true);
-            this.verticalSplit.resetToPreferredSizes();
+            this.leafShapePropertiesPanel.setVisible(false);
         } else {
-            this.leafImagePropertiesPanel.setVisible(false);
-            this.leafSpritePropertiesPanel.setVisible(false);
-            this.leafShapePropertiesPanel.setVisible(false);
+            this.setPosition(leaf.getPosition());
+            this.setScale(leaf.getScale());
+            this.setRotation(leaf.getRotation());
+            this.leafName.setText(leaf.getName());
+            if (leaf instanceof ImageLeaf) {
+                this.leafImagePropertiesPanel.setVisible(true);
+                this.leafSpritePropertiesPanel.setVisible(false);
+                this.leafShapePropertiesPanel.setVisible(false);
+                this.verticalSplit.resetToPreferredSizes();
+            } else if (leaf instanceof SpriteLeaf) {
+                this.leafImagePropertiesPanel.setVisible(false);
+                this.leafSpritePropertiesPanel.setVisible(true);
+                this.leafShapePropertiesPanel.setVisible(false);
+                this.verticalSplit.resetToPreferredSizes();
+            } else if (leaf instanceof ShapeLeaf) {
+                this.leafImagePropertiesPanel.setVisible(false);
+                this.leafSpritePropertiesPanel.setVisible(false);
+                this.leafShapePropertiesPanel.setVisible(true);
+                this.verticalSplit.resetToPreferredSizes();
+            } else {
+                this.leafImagePropertiesPanel.setVisible(false);
+                this.leafSpritePropertiesPanel.setVisible(false);
+                this.leafShapePropertiesPanel.setVisible(false);
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package peony;
 
 import org.json.JSONObject;
 
+import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -66,6 +67,86 @@ public class Game extends Artefact implements TreeModel {
     }
 
     /**
+     * Moves a layout around in the tree of layouts.
+     * @param path   is the path to where it must get inserted.
+     * @param layout is the thing to insert.
+     * @param index  is the index at which to add this layout.
+     */
+    public void moveLayout(
+        Layout from,
+        TreePath path,
+        Layout layout,
+        int index
+    ) {
+        System.out.println(index);
+        Layout parent = (Layout)path.getLastPathComponent();
+        layout.setParent(parent);
+        if (index == -1) {
+            parent.getChildren().add(layout);
+        } else {
+            parent.getChildren().add(index, layout);
+        }
+        if (from == parent) {
+            int i = 0;
+            int kill = -1;
+            for (Layout child: from.getChildren()) {
+                if (child == layout && i != index) {
+                    kill = i;
+                    break;
+                }
+                i++;
+            }
+            if (kill >= 0) from.getChildren().remove(kill);
+        } else if (from != null) {
+            from.getChildren().remove(layout);
+        }
+        this.changeEvent(this.firstLayout);
+    }
+
+    /**
+     * Creates a child of the given layout.
+     * @param parent is the parent to create it under.
+     */
+    public void createLayout(Layout parent) {
+        Layout child = parent.createChild();
+        this.changeEvent(parent);
+    }
+
+    /**
+     * Tries to rename a layout.
+     * @param layout is the layout to rename.
+     * @param name   is the name to give it.
+     * @return true on success and false if there is already one with that name.
+     */
+    public boolean renameLayout(Layout layout, String name) {
+        Layout parent = layout.getParent();
+        if (parent != null) {
+            Layout owner = parent.getChildByName(name);
+            if (owner != null && owner != layout) {
+                return false;
+            }
+        }
+        layout.setName(name);
+        this.changeEvent(layout);
+        return true;
+    }
+
+    /**
+     * Removes a layout from it's parent and then triggers a change event.
+     * @param layout is the layout to orphan.
+     */
+    public void removeLayout(Layout layout) {
+        Layout parent = layout.getParent();
+        if (parent != null) {
+            layout.setParent(null);
+            parent.getChildren().remove(layout);
+            this.changeEvent(parent);
+        } else {
+            System.out.println("retard alert");
+        }
+    }
+
+    /**
      * Creates a game from a json representation of one.
      * @param json is the json to create it from.
      * @return a result containing the game unless it fucks up.
@@ -74,8 +155,18 @@ public class Game extends Artefact implements TreeModel {
         return Result.fail("not implmented");
     }
 
+    /**
+     * Tells the listeners that something beautiful has happened.
+     * @param point the point in the tree where the change has occurred.
+     */
     private void changeEvent(Layout point) {
-
+        TreeModelEvent event = new TreeModelEvent(
+            this,
+            point.getLineage()
+        );
+        for (TreeModelListener listener: this.treeModelListeners) {
+            listener.treeStructureChanged(event);
+        }
     }
 
     @Override
@@ -103,9 +194,8 @@ public class Game extends Artefact implements TreeModel {
 
     @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
-
-        System.out.println((String)newValue);
-        System.out.println("value for path changed.");
+        Layout layout = (Layout)path.getLastPathComponent();
+        this.renameLayout(layout, (String)newValue);
     }
 
     @Override

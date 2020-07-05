@@ -2,7 +2,10 @@ package peony;
 
 import org.json.JSONObject;
 
+import javax.swing.tree.TreePath;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -94,19 +97,23 @@ public class Layout extends Artefact {
 
     /**
      * Creates a child layout with a non clashing name.
+     * @return the created child for you to use if you want.
      */
-    public void createChild() {
+    public Layout createChild() {
         String base = "layout";
         String name = base;
         for (int i = 1; i < Integer.MAX_VALUE; i++) {
             Layout existing = this.getChildByName(name);
             if (existing == null) {
-                this.children.add(new Layout(name));
+                Layout child = new Layout(name);
+                child.setParent(this);
+                this.children.add(child);
                 this.dirty();
-                return;
+                return child;
             }
             name = String.format("%s%d", base, i);
         }
+        return null;
     }
 
     /**
@@ -124,6 +131,21 @@ public class Layout extends Artefact {
     public void setParent(Layout parent) {
         this.parent = parent;
         this.dirty();
+    }
+
+    /**
+     * Gives you the full treepath to this layout through the heirachy it
+     * exists in.
+     * @return the tree path.
+     */
+    public TreePath getLineage() {
+        Deque<Layout> path = new LinkedList<>();
+        Layout layout = this;
+        do {
+            path.addFirst(layout);
+            layout = layout.getParent();
+        } while (layout != null);
+        return new TreePath(path.toArray());
     }
 
     @Override
