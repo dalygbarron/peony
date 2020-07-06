@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.event.TreeModelEvent;
@@ -28,6 +29,18 @@ public class Game implements Artefact, TreeModel {
         this.name = "untitled";
         this.version = "1.0.0";
         this.firstLayout = new Layout();
+    }
+
+    /**
+     * Creates a game by setting all it's crap.
+     * @param name        is the name of the game.
+     * @param version     is the game's version.
+     * @param firstLayout is the top layout of the game.
+     */
+    public Game(String name, String version, Layout firstLayout) {
+        this.name = name;
+        this.version = version;
+        this.firstLayout = firstLayout;
     }
 
     /**
@@ -149,7 +162,21 @@ public class Game implements Artefact, TreeModel {
      * @return result with the game on success.
      */
     public static Result<Game> fromJson(JSONObject json) {
-        return Result.fail("not implement");
+        String name;
+        String version;
+        JSONObject layoutJson;
+        try {
+            name = json.getString("name");
+            version = json.getString("version");
+            layoutJson = json.getJSONObject("layout");
+        } catch (JSONException e) {
+            return Result.fail("Invalid json for game object.");
+        }
+        Result<Layout> layout = Layout.fromJson(layoutJson);
+        if (layout.success()) {
+            return Result.ok(new Game(name, version, layout.value()));
+        }
+        return Result.fail(layout.message());
     }
 
     @Override

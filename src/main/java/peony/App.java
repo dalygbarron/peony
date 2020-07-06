@@ -53,6 +53,7 @@ public class App {
             if (file != null) {
                 Result<Void> result = model.load(file);
                 if (!result.success()) view.displayError(result.message());
+                else view.setGame(model.getGame());
             }
         });
         // Saving.

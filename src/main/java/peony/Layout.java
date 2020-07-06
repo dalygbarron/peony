@@ -1,6 +1,7 @@
 package peony;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.tree.TreePath;
@@ -96,6 +97,16 @@ public class Layout implements Artefact {
     }
 
     /**
+     * Adds a child layout to this layout and sets this layout as that
+     * layout's child.
+     * @param child is the child to add.
+     */
+    public void addChild(Layout child) {
+        this.children.add(child);
+        child.setParent(this);
+    }
+
+    /**
      * Creates a child layout with a non clashing name.
      * @return the created child for you to use if you want.
      */
@@ -171,6 +182,27 @@ public class Layout implements Artefact {
      *          you are gonna get an error.
      */
     public static Result<Layout> fromJson(JSONObject json) {
-        return Result.fail("not implemented");
+        String name;
+        JSONArray leaves;
+        JSONArray children;
+        try {
+            name = json.getString("name");
+            leaves = json.getJSONArray("leaves");
+            children = json.getJSONArray("children");
+        } catch (JSONException e) {
+            return Result.fail("Invalid json for layout object.");
+        }
+        Layout layout = new Layout(name);
+        for (int i = 0; i < leaves.length(); i++) {
+            Result<Leaf> leaf = Leaf.fromJson(leaves.getJSONObject(i));
+            if (leaf.success()) layout.getLeaves().add(leaf.value());
+            else return Result.fail(leaf.message());
+        }
+        for (int i = 0; i < children.length(); i++) {
+            Result<Layout> child = Layout.fromJson(children.getJSONObject(i));
+            if (child.success()) layout.addChild(child.value());
+            else return Result.fail(child.message());
+        }
+        return Result.ok(layout);
     }
 }

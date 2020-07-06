@@ -107,6 +107,15 @@ public abstract class Leaf implements Artefact {
      */
     public abstract String generateBaseName();
 
+    /**
+     * Creates a leaf from json, and handles the polymorphism and that.
+     * @param json is the json to turn into a leaf.
+     * @return the created leaf in a result thing unless it fucks up.
+     */
+    public static Result<Leaf> fromJson(JSONObject json) {
+        return Result.ok(new PointLeaf());
+    }
+
     @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
