@@ -57,13 +57,8 @@ public class View extends JFrame {
 
     /**
      * Creates and sets up the view.
-     * @param game                  is the game object which the layout tree
-     *                              reflects.
-     * @param layoutTransferHandler is the transfer handler that handles it
-     *                              when layouts are moved around the tree of
-     *                              layouts.
      */
-    public View(Game game, TransferHandler layoutTransferHandler) {
+    public View() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
         this.script.setSyntaxEditingStyle(
@@ -139,8 +134,6 @@ public class View extends JFrame {
         this.mapTree.setEditable(true);
         this.mapTree.setDragEnabled(true);
         this.mapTree.setDropMode(DropMode.ON_OR_INSERT);
-        this.mapTree.setTransferHandler(layoutTransferHandler);
-        this.mapTree.setModel(game);
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
         this.leafList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -165,19 +158,20 @@ public class View extends JFrame {
     }
 
     /**
+     * Sets the game that the view is reflecting.
+     * @param game is the game.
+     */
+    public void setGame(Game game) {
+        this.mapTree.setTransferHandler(new LayoutTransferHandler(game));
+        this.mapTree.setModel(game);
+    }
+
+    /**
      * Gives you the text that is currently written in the leaf name box.
      * @return the written text.
      */
     public String getLeafName() {
         return this.leafName.getText();
-    }
-
-    /**
-     * Changes whether the save button is turned on.
-     * @param enabled is whether for it to be on or off.
-     */
-    public void setSaveEnabled(boolean enabled) {
-        this.saveButton.setEnabled(enabled);
     }
 
     /**

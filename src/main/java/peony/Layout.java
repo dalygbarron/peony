@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * One layout thingy
  */
-public class Layout extends Artefact {
+public class Layout implements Artefact {
     private String name;
     private List<Leaf> leaves;
     private List<Layout> children;
@@ -73,7 +73,6 @@ public class Layout extends Artefact {
      */
     public void setName(String name) {
         this.name = name;
-        this.dirty();
     }
 
     /**
@@ -109,7 +108,6 @@ public class Layout extends Artefact {
                 Layout child = new Layout(name);
                 child.setParent(this);
                 this.children.add(child);
-                this.dirty();
                 return child;
             }
             name = String.format("%s%d", base, i);
@@ -131,7 +129,6 @@ public class Layout extends Artefact {
      */
     public void setParent(Layout parent) {
         this.parent = parent;
-        this.dirty();
     }
 
     /**
@@ -147,14 +144,6 @@ public class Layout extends Artefact {
             layout = layout.getParent();
         } while (layout != null);
         return new TreePath(path.toArray());
-    }
-
-    @Override
-    public boolean isDirty() {
-        for (Layout child: this.children) {
-            if (child.isDirty()) return true;
-        }
-        return super.isDirty();
     }
 
     @Override

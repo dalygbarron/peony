@@ -10,10 +10,8 @@ import java.io.File;
 public class App {
     public static void main(String[] args) {
         Model model = new Model();
-        View view = new View(
-            model.getGame(),
-            new LayoutTransferHandler(model.getGame())
-        );
+        View view = new View();
+        view.setGame(model.getGame());
         App.controller(view, model);
     }
     
@@ -23,8 +21,6 @@ public class App {
      * @param model is the actual data stuff that is 
      */
     private static void controller(View view, Model model) {
-        // view.setLayout(model.getSelectedLayout());
-        // view.setLayouts(model.getGame().getFirstLayout());
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
@@ -43,7 +39,6 @@ public class App {
             }
             leaf.setName(name);
             view.updateLeafList(model.getSelectedLeafIndex(), name);
-            view.setSaveEnabled(true);
         });
         // Game properties button.
         view.addGamePropertiesListener((ActionEvent event) -> {
@@ -56,27 +51,21 @@ public class App {
         view.addLoadListener((ActionEvent event) -> {
             File file = view.chooseGameFile();
             if (file != null) {
-                try {
-                    model.load(file);
-                } catch (IllegalArgumentException e) {
-                    view.displayError(
-                        "Loaded game not viable: " + e.getMessage()
-                    );
-                }
+                Result<Void> result = model.load(file);
+                if (!result.success()) view.displayError(result.message());
             }
         });
         // Saving.
         view.addSaveListener((ActionEvent event) -> {
-            System.out.println(model.getGame().toJson());
             File file = model.getFile();
             if (file == null) {
                 file = view.chooseGameFile();
                 if (file == null) return;
                 model.setFile(file);
             }
-            // TODO: this is where the actual saving stuff is done.
-            view.displayError("It's saving man, I swear");
-            view.setSaveEnabled(false);
+            Result<Void> result = model.save();
+            if (result.success()) view.displayError("Saved nicely.");
+            else view.displayError(result.message());
         });
         // Quitting.
         view.addQuitListener((ActionEvent event) -> {
@@ -117,13 +106,11 @@ public class App {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setX(view.getPosition().getX());
-            view.setSaveEnabled(true);
         });
         view.addChangeYPositionListener((ChangeEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setY(view.getPosition().getY());
-            view.setSaveEnabled(true);
         });
         // Changing leaf scale by form.
         view.addChangeScaleListener((ChangeEvent event) -> {
@@ -177,6 +164,5 @@ public class App {
     	App.nameLeaf(view, model, leaf);
         model.getSelectedLayout().getLeaves().add(leaf);
         view.appendLeafList(leaf.getName());
-        view.setSaveEnabled(true);
     }
 }

@@ -73,10 +73,9 @@ public class Result<T> {
 
     /**
      * Argumentless ok function for cases where there is nothing to give.
-     * @param <T> is the type of return which is admittedly meaningless here.
      * @return the result that is successful.
      */
-    public static <T> Result<T> ok() {
-        return new Result<T>(true, null, null);
+    public static Result<Void> ok() {
+        return new Result<Void>(true, null, null);
     }
 }

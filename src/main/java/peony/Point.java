@@ -5,7 +5,7 @@ import org.json.JSONObject;
 /**
  * Represents a point or vector or whatever in 2d space.
  */
-public class Point extends Artefact {
+public class Point implements Artefact {
     private float x;
     private float y;
 
@@ -50,7 +50,6 @@ public class Point extends Artefact {
      */
     public void setX(float x) {
         this.x = x;
-        this.dirty();
     }
 
     /**
@@ -67,7 +66,6 @@ public class Point extends Artefact {
      */
     public void setY(float y) {
         this.y = y;
-        this.dirty();
     }
 
     /**
@@ -77,7 +75,6 @@ public class Point extends Artefact {
     public void set(Point point) {
         this.x = point.x;
         this.y = point.y;
-        this.dirty();
     }
 
     /**
@@ -88,7 +85,6 @@ public class Point extends Artefact {
     public void set(float x, float y) {
         this.x = x;
         this.y = y;
-        this.dirty();
     }
 
     /**

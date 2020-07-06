@@ -3,6 +3,8 @@ package peony;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * The state of the data we are actually meant to be modifying with this here
@@ -98,10 +100,10 @@ public class Model {
     /**
      * Makes the model load the game from the given file and makes it reflect
      * that instead of what it has currently.
-     * @param file is the file to load from.
+     * @param file is the file to load from and it should not be null.
      * @return result thingy which has an error message on fail.
      */
-    public Result<Boolean> load(File file) {
+    public Result<Void> load(File file) {
         Result<JSONObject> json = Util.readJson(file);
         if (!json.success()) return Result.fail(json.message());
         Result<Game> newGame = Game.fromJson(json.value());
@@ -114,8 +116,15 @@ public class Model {
      * Saves the model to it's configured file. If it does not have a configured
      * file right now it just causes a nuisance for you instead.
      */
-    public Result<Boolean> save() {
-
-        return Result.fail("haven't implemented");
+    public Result<Void> save() {
+        if (this.file == null) return Result.fail("There is no game file.");
+        try {
+            FileWriter writer = new FileWriter(this.file);
+            writer.write(this.game.toJson().toString());
+            writer.close();
+        } catch (IOException e) {
+            return Result.fail(e.getMessage());
+        }
+        return Result.ok();
     }
 }

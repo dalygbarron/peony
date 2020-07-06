@@ -5,7 +5,7 @@ import org.json.JSONObject;
 /**
  * A thing that can be overlaid into a composition and has a form in 2d space.
  */
-public abstract class Leaf extends Artefact {
+public abstract class Leaf implements Artefact {
     private String name = null;
     private Point position = new Point();
     private float scale = 0;
@@ -25,7 +25,6 @@ public abstract class Leaf extends Artefact {
      */
     public void setName(String name) {
         this.name = name;
-        this.dirty();
     }
 
     /**
@@ -65,7 +64,6 @@ public abstract class Leaf extends Artefact {
      * @param rotation is the rotation to give it.
      */
     public void setRotation(float rotation) {
-        this.dirty();
         this.rotation = rotation;
     }
 

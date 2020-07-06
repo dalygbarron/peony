@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Represents an overall game.
  */
-public class Game extends Artefact implements TreeModel {
+public class Game implements Artefact, TreeModel {
     private List<TreeModelListener> treeModelListeners = new ArrayList<>();
     private String name;
     private String version;
@@ -44,7 +44,6 @@ public class Game extends Artefact implements TreeModel {
      */
     public void setName(String name) {
         this.name = name;
-        this.dirty();
     }
 
     /**
@@ -78,7 +77,6 @@ public class Game extends Artefact implements TreeModel {
         Layout layout,
         int index
     ) {
-        System.out.println(index);
         Layout parent = (Layout)path.getLastPathComponent();
         layout.setParent(parent);
         if (index == -1) {
@@ -132,26 +130,10 @@ public class Game extends Artefact implements TreeModel {
     }
 
     /**
-     * Removes a layout from it's parent and then triggers a change event.
-     * @param layout is the layout to orphan.
-     */
-    public void removeLayout(Layout layout) {
-        Layout parent = layout.getParent();
-        if (parent != null) {
-            layout.setParent(null);
-            parent.getChildren().remove(layout);
-            this.changeEvent(parent);
-        } else {
-            System.out.println("retard alert");
-        }
-    }
-
-    /**
      * Tells the listeners that something beautiful has happened.
      * @param point the point in the tree where the change has occurred.
      */
     private void changeEvent(Layout point) {
-        this.dirty();
         TreeModelEvent event = new TreeModelEvent(
             this,
             point.getLineage()
