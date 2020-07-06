@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -113,7 +114,36 @@ public abstract class Leaf implements Artefact {
      * @return the created leaf in a result thing unless it fucks up.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        return Result.ok(new PointLeaf());
+        String type;
+        try {
+            type = json.getString("type");
+        } catch (JSONException e) {
+            return Result.fail(String.format(
+                "Invalid json for leaf object: %s",
+                json
+            ));
+        }
+        Result<Leaf> leaf;
+        switch (type) {
+            case PointLeaf.TITLE:
+                leaf = PointLeaf.fromJson(json);
+                break;
+            case ShapeLeaf.TITLE:
+                leaf = ShapeLeaf.fromJson(json);
+                break;
+            case SpriteLeaf.TITLE:
+                leaf = SpriteLeaf.fromJson(json);
+                break;
+            case ImageLeaf.TITLE:
+                leaf = ImageLeaf.fromJson(json);
+                break;
+            default:
+                return Result.fail(String.format(
+                    "Invalid leaf type: %s",
+                    type
+                ));
+        }
+        return leaf;
     }
 
     @Override
