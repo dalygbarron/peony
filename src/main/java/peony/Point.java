@@ -113,6 +113,14 @@ public class Point implements Artefact {
     }
 
     /**
+     * Gives you the angle of this point as a vector from (0, 1) or something.
+     * @return the angle.
+     */
+    public float angle() {
+        return (float)Math.atan2(this.y, this.x);
+    }
+
+    /**
      * Adds a point to this point and returns the result without changing
      * this object.
      * @param other is the one to add.
@@ -142,6 +150,15 @@ public class Point implements Artefact {
     }
 
     /**
+     * Subtracts a point from this point destructively.
+     * @param other is the other point to subtract.
+     */
+    public void subtract(Point other) {
+        this.x -= other.x;
+        this.y -= other.y;
+    }
+
+    /**
      * Creates a new point which is this point where each dimension is
      * multiplied by some value.
      * @param value is the value to multiply by.
@@ -149,6 +166,19 @@ public class Point implements Artefact {
      */
     public Point times(float value) {
         return new Point(this.x * value, this.y * value);
+    }
+
+    /**
+     * Creates a point that is radius distance from (0, 0) at the given angle.
+     * @param angle  is the angle to be in.
+     * @param radius is the distance from the centre to be.
+     * @return the created point.
+     */
+    public static Point fromAngle(float angle, float radius) {
+        return new Point(
+            (float)Math.cos(angle) * radius,
+            (float)Math.sin(angle) * radius
+        );
     }
 
     /**

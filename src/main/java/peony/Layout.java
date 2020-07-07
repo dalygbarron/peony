@@ -61,6 +61,22 @@ public class Layout implements Artefact {
     }
 
     /**
+     * Finds the highest priority leaf if any that the given position falls
+     * within.
+     * @param pos is the position that must fall within the found leaf.
+     * @return the leaf if found or null.
+     */
+    public Leaf getLeafByPosition(Point pos) {
+        for (int i = this.leaves.size() - 1; i >= 0; i--) {
+            Leaf leaf = this.leaves.get(i);
+            if (leaf.inside(pos)) {
+                return leaf;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Gives you the name of the layout.
      * @return the name.
      */

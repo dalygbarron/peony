@@ -2,6 +2,8 @@ package peony;
 
 import org.json.JSONObject;
 
+import java.awt.*;
+
 /**
  * A leaf that is actually just a point. It can still be transformed and shiet
  * though because then that transformation can be used for other stuff. I guess
@@ -10,7 +12,8 @@ import org.json.JSONObject;
  */
 public class PointLeaf extends Leaf {
     public static final String TITLE = "point";
-    public static final float SELECT_DISTANCE = 32;
+    public static final float SELECT_DISTANCE = 16;
+    public static final float POINT_SIZE = 20;
 
     /**
      * Creates an pointleaf from json.
@@ -27,8 +30,32 @@ public class PointLeaf extends Leaf {
     }
 
     @Override
-    public void render() {
-        // TODO: this.
+    public void render(
+        Graphics g,
+        Point pos,
+        float scale,
+        boolean selected
+    ) {
+        g.setColor(selected ? Color.WHITE : Color.BLACK);
+        super.render(g, pos, scale, selected);
+        Point top = Point.fromAngle(
+            this.getRotation(),
+            PointLeaf.POINT_SIZE / 2
+        ).plus(pos);
+        Point right = Point.fromAngle(
+            (float)(Math.PI / 2) + this.getRotation(),
+            PointLeaf.POINT_SIZE / 2
+        ).plus(pos);
+        Point bottom = Point.fromAngle(
+            (float)Math.PI + this.getRotation(),
+            PointLeaf.POINT_SIZE / 2
+        ).plus(pos);
+        Point left = Point.fromAngle(
+            (float)(Math.PI * 3 / 2) + this.getRotation(),
+            PointLeaf.POINT_SIZE / 2
+        ).plus(pos);
+        g.drawLine(top.getXi(), top.getYi(), bottom.getXi(), bottom.getYi());
+        g.drawLine(left.getXi(), left.getYi(), right.getXi(), right.getYi());
     }
 
     @Override

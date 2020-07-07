@@ -2,6 +2,8 @@ package peony;
 
 import org.json.JSONObject;
 
+import java.awt.*;
+
 /**
  * A leaf that consists of a shape.
  */
@@ -25,8 +27,13 @@ public class ShapeLeaf extends Leaf {
     }
 
     @Override
-    public void render() {
-        // TODO: this.
+    public void render(
+        Graphics g,
+        Point pos,
+        float scale,
+        boolean selected
+    ) {
+        super.render(g, pos, scale, selected);
     }
 
     @Override

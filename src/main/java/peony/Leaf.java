@@ -3,6 +3,8 @@ package peony;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.awt.*;
+
 /**
  * A thing that can be overlaid into a composition and has a form in 2d space.
  */
@@ -75,13 +77,10 @@ public abstract class Leaf implements Artefact {
      * @return true if it is inside and false otherwise.
      */
     public boolean inside(Point point) {
-        float x = point.getX() - this.position.getX();
-        float y = point.getY() - this.position.getY();
-        float distance = (float)Math.sqrt(x * x + y * y);
-        float angle = (float)Math.atan2(y, x) - this.rotation;
-        x = (float)Math.cos(angle) * distance * this.scale;
-        y = (float)Math.sin(angle) * distance * this.scale;
-        return this.insideLocal(new Point(x, y));
+        point.subtract(this.position);
+        float distance = point.length();
+        float angle = point.angle() - this.rotation;
+        return this.insideLocal(Point.fromAngle(angle, distance * this.scale));
     }
 
     /**
@@ -95,8 +94,20 @@ public abstract class Leaf implements Artefact {
 
     /**
      * Draws this leaf onto the screen.
+     * @param pos      is the place to draw it.
+     * @param scale    is the size to draw it at.
+     * @param selected is whether to draw it in the style for when it's
+     *                 selected, or in the normal style.
      */
-    public abstract void render();
+    public void render(
+        Graphics g,
+        Point pos,
+        float scale,
+        boolean selected
+    ) {
+        g.setColor(selected ? Color.WHITE : Color.BLACK);
+        g.drawString(this.getName(), pos.getXi(), pos.getYi());
+    }
 
     /**
      * Gives you the root part of the default name this leaf should have. The

@@ -2,7 +2,7 @@ package peony;
 
 import org.json.JSONObject;
 
-import java.awt.Image;
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -30,8 +30,13 @@ public class ImageLeaf extends Leaf {
     }
 
     @Override
-    public void render() {
-        // TODO: some shit.
+    public void render(
+        Graphics g,
+        Point pos,
+        float scale,
+        boolean selected
+    ) {
+        super.render(g, pos, scale, selected);
     }
 
     @Override
