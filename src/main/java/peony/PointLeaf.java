@@ -36,7 +36,6 @@ public class PointLeaf extends Leaf {
         float scale,
         boolean selected
     ) {
-        g.setColor(selected ? Color.WHITE : Color.BLACK);
         super.render(g, pos, scale, selected);
         Point top = Point.fromAngle(
             this.getRotation(),

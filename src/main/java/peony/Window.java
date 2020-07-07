@@ -88,14 +88,14 @@ public class Window extends JPanel
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
-        Point origin = this.toScreen(new Point());
-        g.drawString(layout.getFullName(), origin.getXi(), origin.getYi());
         this.drawRectangle(
             new Point(),
             new Point(Window.NORMAL_HEIGHT, Window.NORMAL_HEIGHT),
             g
         );
         if (this.layout == null) return;
+        Point origin = this.toScreen(new Point());
+        g.drawString(layout.getFullName(), origin.getXi(), origin.getYi());
         for (Leaf leaf: this.layout.getLeaves()) {
             origin = this.toScreen(leaf.getPosition());
             leaf.render(g, origin, this.zoom, leaf == this.selected);

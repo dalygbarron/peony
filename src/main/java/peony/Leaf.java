@@ -105,7 +105,7 @@ public abstract class Leaf implements Artefact {
         float scale,
         boolean selected
     ) {
-        g.setColor(selected ? Color.WHITE : Color.BLACK);
+        g.setColor(selected ? Color.BLUE : Color.BLACK);
         g.drawString(this.getName(), pos.getXi(), pos.getYi());
     }
 
