@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -45,6 +46,14 @@ public class Point implements Artefact {
     }
 
     /**
+     * Gives you x but as an integer.
+     * @return the integer version of x.
+     */
+    public int getXi() {
+        return (int)this.x;
+    }
+
+    /**
      * Sets the point's x component to some value.
      * @param x is the value to set it to.
      */
@@ -58,6 +67,14 @@ public class Point implements Artefact {
      */
     public float getY() {
         return this.y;
+    }
+
+    /**
+     * Gives you the point's y component as an integer.
+     * @return the integer version of the y.
+     */
+    public int getYi() {
+        return (int)this.y;
     }
 
     /**
@@ -96,12 +113,48 @@ public class Point implements Artefact {
     }
 
     /**
+     * Adds a point to this point and returns the result without changing
+     * this object.
+     * @param other is the one to add.
+     * @return the sum.
+     */
+    public Point plus(Point other) {
+        return new Point(this.x + other.x, this.y + other.y);
+    }
+
+    /**
+     * Subtracts a point from this point and returns the result without
+     * changing this point object.
+     * @param other is the other point.
+     * @return the new point which is this minus the other.
+     */
+    public Point minus(Point other) {
+        return new Point(this.x - other.x, this.y - other.y);
+    }
+
+    /**
+     * Creates a new point which is this point where each dimension is
+     * multiplied by some value.
+     * @param value is the value to multiply by.
+     * @return the new point.
+     */
+    public Point times(float value) {
+        return new Point(this.x * value, this.y * value);
+    }
+
+    /**
      * Converts a json object to a point unless it fucks up.
      * @param json is the object to convert.
      * @return a result that has the created object if the input was valid.
      */
     public static Result<Point> fromJson(JSONObject json) {
-        return Result.fail("Not implemented it yet.");
+        try {
+            float x = json.getFloat("x");
+            float y = json.getFloat("y");
+            return Result.ok(new Point(x, y));
+        } catch (JSONException e) {
+            return Result.fail("Invalid point json: %s", json);
+        }
     }
 
     @Override
@@ -110,5 +163,10 @@ public class Point implements Artefact {
         json.put("x", this.x);
         json.put("y", this.y);
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%f, %f)", this.x, this.y);
     }
 }

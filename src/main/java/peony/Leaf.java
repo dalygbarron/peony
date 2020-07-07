@@ -115,19 +115,25 @@ public abstract class Leaf implements Artefact {
      */
     public static Result<Leaf> fromJson(JSONObject json) {
         String type;
-        Point position;
+        String name;
+        JSONObject position;
         float scale;
         float rotation;
         try {
             type = json.getString("type");
+            name = json.getString("name");
             scale = json.getFloat("scale");
             rotation = json.getFloat("rotation");
-            position =
+            position = json.getJSONObject("position");
         } catch (JSONException e) {
             return Result.fail(String.format(
                 "Invalid json for leaf object: %s",
                 json
             ));
+        }
+        Result<Point> positionResult = Point.fromJson(position);
+        if (!positionResult.success()) {
+            return Result.fail(positionResult.message());
         }
         Result<Leaf> leaf;
         switch (type) {
@@ -151,9 +157,10 @@ public abstract class Leaf implements Artefact {
         }
         if (leaf.success()) {
             Leaf actualLeaf = leaf.value();
+            actualLeaf.name = name;
             actualLeaf.rotation = rotation;
             actualLeaf.scale = scale;
-            actualLeaf.position = position;
+            actualLeaf.position = positionResult.value();
         }
         return leaf;
     }

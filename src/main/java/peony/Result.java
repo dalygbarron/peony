@@ -52,13 +52,18 @@ public class Result<T> {
     }
 
     /**
-     * Creates a failure result.
-     * @param message is the error message.
-     * @param <T>     is the type that was meant to be in the result.
+     * Creates a failure result and does a nice format string message.
+     * @param format is the format of the message.
+     * @param args   are things to put into the format string.
+     * @param <T>    is the type that was meant to be in the result.
      * @return the created failure result.
      */
-    public static <T> Result<T> fail(String message) {
-        return new Result<T>(false, null, message);
+    public static <T> Result<T> fail(String format, Object... args) {
+        return new Result<T>(
+            false,
+            null,
+            String.format(format, args)
+        );
     }
 
     /**

@@ -14,7 +14,8 @@ public class ShapeLeaf extends Leaf {
      * @return the result containing the shape leaf or error.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        return Result.fail("not implemented");
+        // TODO: stuff.
+        return Result.ok(new ShapeLeaf());
     }
 
     @Override
@@ -31,5 +32,13 @@ public class ShapeLeaf extends Leaf {
     @Override
     public String generateBaseName() {
         return "shape";
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = super.toJson();
+        json.put("type", ShapeLeaf.TITLE);
+        // TODO: other shape stuff.
+        return json;
     }
 }

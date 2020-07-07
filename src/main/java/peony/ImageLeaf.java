@@ -19,7 +19,8 @@ public class ImageLeaf extends Leaf {
      * @return the result containing the image leaf or error.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        return Result.fail("not implemented");
+        // TODO: stuff.
+        return Result.ok(new ImageLeaf());
     }
 
     @Override
@@ -37,5 +38,13 @@ public class ImageLeaf extends Leaf {
     public String generateBaseName() {
         // TODO: should be based on filename.
         return "image";
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = super.toJson();
+        json.put("type", ImageLeaf.TITLE);
+        // TODO: other image stuff.
+        return json;
     }
 }

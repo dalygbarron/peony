@@ -14,7 +14,8 @@ public class SpriteLeaf extends Leaf {
      * @return the result containing the sprite leaf or error.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        return Result.fail("not implemented");
+        // TODO: stuff.
+        return Result.ok(new SpriteLeaf());
     }
 
     @Override
@@ -31,6 +32,14 @@ public class SpriteLeaf extends Leaf {
     @Override
     public String generateBaseName() {
         return "sprite";
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = super.toJson();
+        json.put("type", SpriteLeaf.TITLE);
+        // TODO: other sprite stuff.
+        return json;
     }
 }
 

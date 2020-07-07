@@ -109,6 +109,7 @@ public class Model {
         Result<Game> newGame = Game.fromJson(json.value());
         if (!newGame.success()) return Result.fail(newGame.message());
         this.game = newGame.value();
+        this.file = file;
         return Result.ok();
     }
 

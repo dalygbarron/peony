@@ -18,7 +18,7 @@ public class PointLeaf extends Leaf {
      * @return the result containing the point leaf or error.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        return Result.fail("not implemented");
+        return Result.ok(new PointLeaf());
     }
 
     @Override
@@ -34,5 +34,12 @@ public class PointLeaf extends Leaf {
     @Override
     public String generateBaseName() {
         return "point";
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = super.toJson();
+        json.put("type", PointLeaf.TITLE);
+        return json;
     }
 }

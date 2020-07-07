@@ -69,6 +69,16 @@ public class Layout implements Artefact {
     }
 
     /**
+     * Gives you the name of this layout and all of it's parents like a file
+     * heirachy type of deal.
+     * @return the full name.
+     */
+    public String getFullName() {
+        if (this.parent == null) return "/" + this.name;
+        return this.parent.getFullName() + "/" + this.name;
+    }
+
+    /**
      * Sets the name of the layout.
      * @param name the name.
      */

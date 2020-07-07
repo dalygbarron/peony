@@ -52,7 +52,7 @@ public class View extends JFrame {
     private final JButton image = new JButton("Select Image");
     private final JTextField displayName = new JTextField(10);
     private final JList<String> leafList = new JList<>(this.leafListModel);
-    private final JPanel layout = new JPanel();
+    private final Window window = new Window();
     private final RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
 
     /**
@@ -138,7 +138,7 @@ public class View extends JFrame {
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
         this.leafList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JTabbedPane mainTabs = new JTabbedPane();
-        mainTabs.addTab("Layout", this.layout);
+        mainTabs.addTab("Layout", this.window);
         mainTabs.addTab("Script", this.script);
         JTabbedPane listTabs = new JTabbedPane();
         listTabs.addTab("Leaves", this.leafList);
@@ -294,6 +294,7 @@ public class View extends JFrame {
         for (Leaf leaf: layout.getLeaves()) {
             this.leafListModel.addElement(leaf.getName());
         }
+        this.window.setLayout(layout);
     }
 
     /**
