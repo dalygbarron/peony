@@ -123,6 +123,15 @@ public class Point implements Artefact {
     }
 
     /**
+     * Adds a point to this point destructively.
+     * @param other is the point to add to this point.
+     */
+    public void add(Point other) {
+        this.x += other.x;
+        this.y += other.y;
+    }
+
+    /**
      * Subtracts a point from this point and returns the result without
      * changing this point object.
      * @param other is the other point.

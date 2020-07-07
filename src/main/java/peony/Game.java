@@ -20,7 +20,7 @@ public class Game implements Artefact, TreeModel {
     private String version;
     private TextureAtlas textureAtlas;
     private Map<String, String> options;
-    private Layout firstLayout;
+    private final Layout firstLayout;
 
     /**
      * Default constructor.

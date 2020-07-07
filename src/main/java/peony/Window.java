@@ -2,22 +2,37 @@ package peony;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.*;
 import javax.swing.*;
 
 /**
  * Displays the visualisation of the current layout and lets you interact
  * with it to move stuff and all that.
  */
-public class Window extends JPanel {
+public class Window extends JPanel
+    implements MouseListener, MouseWheelListener, MouseMotionListener
+{
     public static final int NORMAL_WIDTH = 640;
     public static final int NORMAL_HEIGHT = 640;
+    public static final int MARGIN = 50;
     public static final int POINT_SIZE = 8;
+    public static final float MIN_ZOOM = 0.1f;
+    private Point mouse = new Point();
     private Point camera = new Point(
         (float)Window.NORMAL_WIDTH / 2,
         (float)Window.NORMAL_HEIGHT / 2
     );
-    private float zoom = 0.5f;
+    private float zoom = 1;
     private Layout layout = null;
+
+    /**
+     * Creates it and makes it it's own listener.
+     */
+    public Window() {
+        this.addMouseListener(this);
+        this.addMouseWheelListener(this);
+        this.addMouseMotionListener(this);
+    }
 
     /**
      * Sets the layout that the window is drawing.
@@ -25,6 +40,12 @@ public class Window extends JPanel {
      */
     public void setLayout(Layout layout) {
         this.layout = layout;
+        this.camera = new Point(
+            (float)Window.NORMAL_WIDTH / 2,
+            (float)Window.NORMAL_HEIGHT / 2
+        );
+        this.zoom =
+            (float)this.getHeight() /  (Window.NORMAL_HEIGHT + Window.MARGIN);
         this.repaint();
     }
 
@@ -88,38 +109,68 @@ public class Window extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(
-            (int)(Window.NORMAL_WIDTH * 1.5),
-            (int)(Window.NORMAL_HEIGHT * 1.5)
-        );
+        return new Dimension(Window.NORMAL_WIDTH * 2, Window.NORMAL_HEIGHT * 2);
     }
 
+    /**
+     * Draws a rectangle from world coordinates in screen coordinates.
+     * @param origin     top left corner in world coordinates.
+     * @param dimensions width and height in world coordinates.
+     * @param g          graphics drawing object.
+     */
     private void drawRectangle(Point origin, Point dimensions, Graphics g) {
-        origin = this.toScreen(origin);
         Point end = this.toScreen(origin.plus(dimensions));
-        g.drawLine(
-            origin.getXi(),
-            origin.getYi(),
-            end.getXi(),
-            origin.getYi()
-        );
-        g.drawLine(
-            end.getXi(),
-            origin.getYi(),
-            end.getXi(),
-            end.getYi()
-        );
-        g.drawLine(
-            end.getXi(),
-            end.getYi(),
-            origin.getXi(),
-            end.getYi()
-        );
-        g.drawLine(
-            origin.getXi(),
-            end.getYi(),
-            origin.getXi(),
-            origin.getYi()
-        );
+        origin = this.toScreen(origin);
+        g.drawLine(origin.getXi(), origin.getYi(), end.getXi(), origin.getYi());
+        g.drawLine(end.getXi(), origin.getYi(), end.getXi(), end.getYi());
+        g.drawLine(end.getXi(), end.getYi(), origin.getXi(), end.getYi());
+        g.drawLine(origin.getXi(), end.getYi(), origin.getXi(), origin.getYi());
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        Point newMouse = new Point(e.getX(), e.getY());
+        Point delta = this.mouse.minus(newMouse);
+        this.camera.add(delta.times(1 / this.zoom));
+        this.repaint();
+        this.mouse.set(newMouse);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        this.mouse.set(e.getX(), e.getY());
+        this.zoom -= e.getPreciseWheelRotation() / 15;
+        if (this.zoom < Window.MIN_ZOOM) this.zoom = Window.MIN_ZOOM;
+        this.repaint();
     }
 }

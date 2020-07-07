@@ -12,6 +12,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.io.File;
 
 /**
@@ -457,6 +458,14 @@ public class View extends JFrame {
      */
     public void addChangeDisplayNameListener(ActionListener listener) {
         this.displayName.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener for mouse events on the window.
+     * @param listener is the listener to add.
+     */
+    public void addWindowMouseListener(MouseListener listener) {
+        this.window.addMouseListener(listener);
     }
 
     /**
