@@ -103,29 +103,42 @@ public class App {
         view.addSelectLeafListener((ListSelectionEvent event) -> {
             model.setSelectedLeaf(view.getSelectedLeaf());
             view.setLeaf(model.getSelectedLeaf());
+            view.getWindow().repaint();
         });
         // Changing leaf position by form.
         view.addChangeXPositionListener((ChangeEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setX(view.getPosition().getX());
+            view.getWindow().repaint();
         });
         view.addChangeYPositionListener((ChangeEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getPosition().setY(view.getPosition().getY());
+            view.getWindow().repaint();
         });
         // Changing leaf scale by form.
         view.addChangeScaleListener((ChangeEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.setScale(view.getScale());
+            view.getWindow().repaint();
         });
         // Changing leaf rotation by form.
         view.addChangeRotationListener((ChangeEvent event) -> {
             Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.setRotation(view.getRotation());
+            view.getWindow().repaint();
+        });
+        // Changing image leaf image
+        view.addSelectImageListener((ActionEvent event) -> {
+            File file = view.chooseImageFile();
+            Leaf leaf = model.getSelectedLeaf();
+            if (file != null && leaf instanceof ImageLeaf) {
+                ((ImageLeaf)leaf).setFile(file);
+            }
         });
         // Selecting a layout in the map list.
         view.addMapTreeListener((TreeSelectionEvent event) -> {
@@ -151,6 +164,7 @@ public class App {
             Leaf owner = model.getSelectedLayout().getLeafByName(name);
             if (owner == null) {
                 leaf.setName(name);
+                view.getWindow().repaint();
                 return;
             }
         }
@@ -167,5 +181,6 @@ public class App {
     	App.nameLeaf(view, model, leaf);
         model.getSelectedLayout().getLeaves().add(leaf);
         view.appendLeafList(leaf.getName());
+        view.getWindow().repaint();
     }
 }

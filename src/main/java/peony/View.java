@@ -14,11 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Enumeration;
 
 /**
  * Manages the program's user interface.
  */
-public class View extends JFrame {
+public class View extends JFrame implements WindowListener {
     private final PigTree mapTree = new PigTree();
     private final JSplitPane verticalSplit;
     private final JFileChooser imageChooser = new JFileChooser();
@@ -65,6 +66,7 @@ public class View extends JFrame {
         this.script.setSyntaxEditingStyle(
             SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
         );
+        this.window.addListener(this);
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(this.loadButton);
@@ -91,12 +93,6 @@ public class View extends JFrame {
         );
         this.imageChooser.setFileFilter(filter);
         this.imageChooser.setAcceptAllFileFilterUsed(false);
-        this.image.addActionListener((ActionEvent event) -> {
-            int result = this.imageChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                System.out.println(this.imageChooser.getSelectedFile().getName());
-            }
-        });
         this.sprite.addActionListener((ActionEvent event) -> {
             this.spriteChooser.setVisible(true);
         });
@@ -250,6 +246,10 @@ public class View extends JFrame {
      * @param leaf is the leaf to set stuff based on.
      */
     public void setLeaf(Leaf leaf) {
+        int index = this.leafIndex(leaf);
+        if (index >= 0) this.leafList.setSelectedIndex(index);
+        else this.leafList.clearSelection();
+        this.window.setSelected(leaf);
         if (leaf == null) {
             this.setPosition(new Point());
             this.setScale(0);
@@ -296,6 +296,30 @@ public class View extends JFrame {
             this.leafListModel.addElement(leaf.getName());
         }
         this.window.setLayout(layout);
+    }
+
+    /**
+     * Gives you access to the drawing window.
+     * @return the window.
+     */
+    public Window getWindow() {
+        return this.window;
+    }
+
+    /**
+     * Finds the index of the given leaf in the leaf list if it's there.
+     * @param leaf is the leaf to look for.
+     * @return the index of it if it's found, otherwise -1.
+     */
+    public int leafIndex(Leaf leaf) {
+        if (leaf == null) return -1;
+        int i = 0;
+        for (Enumeration<String> e = this.leafListModel.elements(); e.hasMoreElements();) {
+            String name = e.nextElement();
+            if (leaf.getName().equals(name)) return i;
+            i++;
+        }
+        return -1;
     }
 
     /**
@@ -461,6 +485,14 @@ public class View extends JFrame {
     }
 
     /**
+     * Adds a listener on the image select button.
+     * @param listener is the listener to add.
+     */
+    public void addSelectImageListener(ActionListener listener) {
+        this.image.addActionListener(listener);
+    }
+
+    /**
      * Adds a listener for mouse events on the window.
      * @param listener is the listener to add.
      */
@@ -477,6 +509,19 @@ public class View extends JFrame {
         int result = this.gameChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             return this.gameChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    /**
+     * Opens a dialog that lets you choose an image file, and returns the
+     * result.
+     * @return the file found or null if you are an idiot.
+     */
+    public File chooseImageFile() {
+        int result = this.imageChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return this.imageChooser.getSelectedFile();
         }
         return null;
     }
@@ -536,5 +581,10 @@ public class View extends JFrame {
             node.add(View.layoutNode(child));
         }
         return node;
+    }
+
+    @Override
+    public void leafSelected(Window window, Leaf leaf) {
+        this.setLeaf(leaf);
     }
 }

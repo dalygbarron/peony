@@ -11,7 +11,7 @@ import java.awt.*;
 public abstract class Leaf implements Artefact {
     private String name = null;
     private Point position = new Point();
-    private float scale = 0;
+    private float scale = 1;
     private float rotation = 0;
 
     /**
@@ -77,9 +77,9 @@ public abstract class Leaf implements Artefact {
      * @return true if it is inside and false otherwise.
      */
     public boolean inside(Point point) {
-        point.subtract(this.position);
-        float distance = point.length();
-        float angle = point.angle() - this.rotation;
+        Point local = point.minus(this.position);
+        float distance = local.length();
+        float angle = local.angle() - this.rotation;
         return this.insideLocal(Point.fromAngle(angle, distance * this.scale));
     }
 
