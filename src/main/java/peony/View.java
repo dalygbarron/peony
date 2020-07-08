@@ -138,8 +138,8 @@ public class View extends JFrame implements WindowListener {
         mainTabs.addTab("Layout", this.window);
         mainTabs.addTab("Script", this.script);
         JTabbedPane listTabs = new JTabbedPane();
-        listTabs.addTab("Leaves", this.leafList);
-        listTabs.addTab("Layouts", this.mapTree);
+        listTabs.addTab("Leaves", new JScrollPane(this.leafList));
+        listTabs.addTab("Layouts", new JScrollPane(this.mapTree));
         this.verticalSplit = new JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
             propertiesTabs,

@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -29,6 +30,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
         try {
             this.image = ImageIO.read(file);
         } catch (IOException e) {
+            System.err.println(e);
             this.file = null;
             this.image = null;
             return;
@@ -45,8 +47,14 @@ public class ImageLeaf extends Leaf implements ImageObserver {
      * @return the result containing the image leaf or error.
      */
     public static Result<Leaf> fromJson(JSONObject json) {
-        // TODO: stuff.
-        return Result.ok(new ImageLeaf());
+        ImageLeaf leaf = new ImageLeaf();
+        try {
+            File file = new File(json.getString("file"));
+            leaf.setFile(file);
+        } catch (JSONException e) {
+            return Result.fail("Invalid json for imageleaf: %s", json);
+        }
+        return Result.ok(leaf);
     }
 
     @Override
@@ -86,7 +94,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     public JSONObject toJson() {
         JSONObject json = super.toJson();
         json.put("type", ImageLeaf.TITLE);
-        // TODO: other image stuff.
+        json.put("file", this.file.toString());
         return json;
     }
 
