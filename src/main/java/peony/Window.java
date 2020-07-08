@@ -13,7 +13,7 @@ import javax.swing.*;
  * with it to move stuff and all that.
  */
 public class Window extends JPanel
-    implements MouseListener, MouseWheelListener, MouseMotionListener
+    implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener
 {
     public static final int NORMAL_WIDTH = 640;
     public static final int NORMAL_HEIGHT = 640;
@@ -37,6 +37,7 @@ public class Window extends JPanel
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
         this.addMouseMotionListener(this);
+        this.addKeyListener(this);
     }
 
     /**
@@ -165,6 +166,7 @@ public class Window extends JPanel
     @Override
     public void mousePressed(MouseEvent e) {
         this.mouse.set(e.getX(), e.getY());
+        this.requestFocus();
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.layout == null) return;
             Point pos = this.fromScreen(this.mouse);
@@ -224,5 +226,30 @@ public class Window extends JPanel
         this.zoom -= e.getPreciseWheelRotation() / 15;
         if (this.zoom < Window.MIN_ZOOM) this.zoom = Window.MIN_ZOOM;
         this.repaint();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // do nothing I think.
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (this.selectedPoint == null) return;
+        if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            Point newSelected = ((ShapeLeaf)this.selected)
+                .removePoint(this.selectedPoint);
+            if (newSelected != null) this.selectedPoint = newSelected;
+            this.repaint();
+        } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            Point newPoint = ((ShapeLeaf)this.selected)
+                .splitEdge(this.selectedPoint);
+            if (newPoint != null) this.selectedPoint = newPoint;
+            this.repaint();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 }

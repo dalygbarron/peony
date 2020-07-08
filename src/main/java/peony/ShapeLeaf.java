@@ -49,6 +49,60 @@ public class ShapeLeaf extends Leaf {
     }
 
     /**
+     * Removes the given point from this shape.
+     * @param point is the point to remove.
+     * @return the previous point in the shape unless the given point could
+     *         not be removed for whatever reason in which case null is
+     *         returned.
+     */
+    public Point removePoint(Point point) {
+        int n = this.points.size();
+        if (n <= ShapeLeaf.MIN_POINTS) return null;
+        int kill = -1;
+        for (int i = 0; i < n; i++) {
+            if (this.points.get(i) == point) {
+                kill = i;
+                break;
+            }
+        }
+        if (kill != -1) {
+            this.points.remove(kill);
+            return this.points.get(kill == 0 ? n - 2 : kill - 1);
+        }
+        return null;
+    }
+
+    /**
+     * Splits the edge after the given point by inserting a new point after
+     * it that is half way between it and the next one.
+     * @param point the point to add a node after.
+     * @return the new node or null if you gave a point not in this shape.
+     */
+    public Point splitEdge(Point point) {
+        int n = this.points.size();
+        int index = -1;
+        for (int i = 0; i < n; i++) {
+            if (this.points.get(i) == point) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) return null;
+        Point next = this.points.get(index == n - 1 ? 0 : index + 1);
+        Point mid = point.plus(next).times(0.5f);
+        this.points.add(index + 1, mid);
+        return mid;
+    }
+
+    /**
+     * Moves all the nodes then moves the leaf itself so it's nodes are in
+     * the same spot but the centre of the leaf is in the middle of the nodes.
+     */
+    public void recentre() {
+        // TODO: this.
+    }
+
+    /**
      * Creates an shapeleaf from json.
      * @param json is the thingy to turn into an shape leaf.
      * @return the result containing the shape leaf or error.
