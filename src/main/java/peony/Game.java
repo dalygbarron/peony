@@ -119,7 +119,7 @@ public class Game implements Artefact, TreeModel {
      * @param parent is the parent to create it under.
      */
     public void createLayout(Layout parent) {
-        Layout child = parent.createChild();
+        parent.createChild();
         this.changeEvent(parent);
     }
 
@@ -220,13 +220,7 @@ public class Game implements Artefact, TreeModel {
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        Layout layout = (Layout)parent;
-        int i = 0;
-        for (Layout childLayout: layout.getChildren()) {
-            if (childLayout == child) return i;
-            i++;
-        }
-        return -1;
+        return ((Layout)parent).getChildren().indexOf(child);
     }
 
     @Override

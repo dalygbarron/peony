@@ -22,6 +22,7 @@ public class ShapeLeaf extends Leaf {
      * Creates a default shape.
      */
     public ShapeLeaf() {
+        super(ShapeLeaf.TITLE);
         float increment = (float)Math.PI * 2 / ShapeLeaf.MIN_POINTS;
         for (int i = 0; i < ShapeLeaf.MIN_POINTS; i++) {
             this.points.add(Point.fromAngle(
@@ -150,6 +151,7 @@ public class ShapeLeaf extends Leaf {
 
     @Override
     public void render(Renderer r) {
+        r.push(this.getTransformation());
         for (int i = 0; i < this.points.size(); i++) {
             Point point = this.points.get(i);
             Point next = this.points.get(
@@ -164,6 +166,8 @@ public class ShapeLeaf extends Leaf {
             r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
             r.drawLine(point, next);
         }
+        for (Leaf child: this.getChildren()) child.render(r);
+        r.pop();
     }
 
     @Override

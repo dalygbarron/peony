@@ -123,7 +123,7 @@ public class Window extends JPanel
                 ((ShapeLeaf)root).setHighlight(this.selectedPoint);
             }
             if (root != null) {
-                //root.render(g, new Point(), this.zoom, root == this.selected);
+                root.render(r);
             }
         }
         g.setColor(Color.BLACK);
@@ -213,7 +213,6 @@ public class Window extends JPanel
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         this.mouse.set(e.getX(), e.getY());
-        this.camera.setRotation(this.camera.getRotation() + 0.01f);
         this.camera.setScale(
             this.camera.getScale() - (float)e.getPreciseWheelRotation() *
                 Window.SCALE_POWER

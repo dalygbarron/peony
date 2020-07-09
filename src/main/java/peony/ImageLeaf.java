@@ -22,6 +22,13 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     private Point middle = new Point();
 
     /**
+     * Default constructor.
+     */
+    public ImageLeaf() {
+        super(ImageLeaf.TITLE);
+    }
+
+    /**
      * Sets the file and image that this image leaf uses.
      * @param file is the file to set.
      */

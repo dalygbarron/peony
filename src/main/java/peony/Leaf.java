@@ -17,8 +17,16 @@ import java.util.List;
 public abstract class Leaf implements Artefact {
     private final List<Leaf> children = new ArrayList<>();
     private Transformation transformation = new Transformation();
-    private String name = null;
+    private String name;
     private Leaf parent = null;
+
+    /**
+     * Leaves should never be unnamed.
+     * @param name the name to start it off with.
+     */
+    public Leaf(String name) {
+        this.name = name;
+    }
 
     /**
      * Gives you the leaf's name.
@@ -81,6 +89,20 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
+     * Adds a child node to the leaf, and makes sure that it's name is unique.
+     * @param child is the leaf to add.
+     */
+    public void addChild(Leaf child) {
+        String test = child.getName();
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            test = String.format("%s%d", child.getName(), i);
+            if (this.getChildByName(test) == null) break;
+        }
+        child.setName(test);
+        this.children.add(child);
+    }
+
+    /**
      * Gives you the full treepath to this leaf through the heirachy it
      * exists in.
      * @return the tree path.
@@ -96,13 +118,19 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
-     * Takes a point in world coordinates and tells you whether that point is
-     * in or on this leaf.
-     * @param point is the point.
-     * @return true if it is inside and false otherwise.
+     * Tells you if this leaf or a child of it contains the given point,
+     * favouring leaves that are lower in the heirachy.
+     * @param point is the point to look at.
+     * @return the lowest node fulfilling these conditions.
      */
-    public boolean inside(Point point) {
-        return this.insideLocal(this.transformation.in(point));
+    public Leaf hit(Point point) {
+        Point t = this.transformation.in(point);
+        for (Leaf child: this.children) {
+            Leaf found = child.hit(t);
+            if (found != null) return found;
+        }
+        if (this.insideLocal(t)) return this;
+        return null;
     }
 
     /**
@@ -190,5 +218,10 @@ public abstract class Leaf implements Artefact {
         json.put("name", this.name);
         json.put("transformation", this.transformation.toJson());
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

@@ -1,7 +1,6 @@
 package peony;
 
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import java.awt.event.*;
 import java.io.File;
@@ -11,6 +10,7 @@ public class App {
         Model model = new Model();
         View view = new View();
         view.setGame(model.getGame());
+        view.setLayout(model.getSelectedLayout());
         App.controller(view, model);
     }
     
@@ -75,41 +75,48 @@ public class App {
         });
         // Adding an image to the composition.
         view.addAddImageListener((ActionEvent event) -> {
-            App.addLeaf(view, model, new ImageLeaf());
+            Leaf parent = model.getSelectedLeaf();
+            if (parent != null) {
+                parent.addChild(new ImageLeaf());
+                model.getSelectedLayout().changed(parent);
+            }
         });
         // Adding a sprite to the composition.
         view.addAddSpriteListener((ActionEvent event) -> {
-            App.addLeaf(view, model, new SpriteLeaf());
+            Leaf parent = model.getSelectedLeaf();
+            if (parent != null) {
+                parent.addChild(new SpriteLeaf());
+                model.getSelectedLayout().changed(parent);
+            }
         });
         // Adding a shape to the composition.
         view.addAddShapeListener((ActionEvent event) -> {
-            App.addLeaf(view, model, new ShapeLeaf());
+            Leaf parent = model.getSelectedLeaf();
+            if (parent != null) {
+                parent.addChild(new ShapeLeaf());
+                model.getSelectedLayout().changed(parent);
+            }
         });
         // Adding a point to the composition.
         view.addAddPointListener((ActionEvent event) -> {
-            App.addLeaf(view, model, new PointLeaf());
+            Leaf parent = model.getSelectedLeaf();
+            if (parent != null) {
+                parent.addChild(new PointLeaf());
+                model.getSelectedLayout().changed(parent);
+            }
         });
         // Adding a new layout.
         view.addAddLayoutListener((ActionEvent event) -> {
-            Layout layout = view.getSelectedLayout();
+            Layout layout = model.getSelectedLayout();
             if (layout != null) {
                 model.getGame().createLayout(layout);
             } else {
                 view.displayError("No selected layout");
             }
         });
-        // Selecting a leaf in the list.
-        // TODO: fix
-        /*
-        view.addSelectLeafListener((ListSelectionEvent event) -> {
-            model.setSelectedLeaf(view.getSelectedLeaf());
-            view.setLeaf(model.getSelectedLeaf());
-            view.getWindow().repaint();
-        });
-         */
         // Changing leaf position by form.
         view.addChangeXPositionListener((ChangeEvent event) -> {
-            Leaf leaf = view.getSelectedLeaf();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getTransformation()
                 .getTranslation()
@@ -117,7 +124,7 @@ public class App {
             view.getWindow().repaint();
         });
         view.addChangeYPositionListener((ChangeEvent event) -> {
-            Leaf leaf = view.getSelectedLeaf();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getTransformation()
                 .getTranslation()
@@ -126,14 +133,14 @@ public class App {
         });
         // Changing leaf scale by form.
         view.addChangeScaleListener((ChangeEvent event) -> {
-            Leaf leaf = view.getSelectedLeaf();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getTransformation().setScale(view.getScale());
             view.getWindow().repaint();
         });
         // Changing leaf rotation by form.
         view.addChangeRotationListener((ChangeEvent event) -> {
-            Leaf leaf = view.getSelectedLeaf();
+            Leaf leaf = model.getSelectedLeaf();
             if (leaf == null) return;
             leaf.getTransformation().setRotation(view.getRotation());
             view.getWindow().repaint();
@@ -146,11 +153,19 @@ public class App {
                 ((ImageLeaf)leaf).setFile(file);
             }
         });
+        // Selecting a leaf in the list.
+        view.addLeafTreeListener((TreeSelectionEvent event) -> {
+            Leaf leaf = view.getSelectedLeaf();
+            if (leaf != null) {
+                model.setSelectedLeaf(leaf);
+                view.setLeaf(leaf);
+                view.getWindow().repaint();
+            }
+        });
         // Selecting a layout in the map list.
         view.addMapTreeListener((TreeSelectionEvent event) -> {
             Layout layout = view.getSelectedLayout();
             if (layout != null) {
-                model.setSelectedLayout(layout);
                 view.setLayout(layout);
             }
         });
@@ -184,6 +199,10 @@ public class App {
                 ((ShapeLeaf)selected).recentre();
                 window.repaint();
             }
+        });
+        // Window selecting a leaf.
+        view.getWindow().addListener((Window window, Leaf leaf) -> {
+            model.setSelectedLeaf(leaf);
         });
     	view.setVisible(true);
     }

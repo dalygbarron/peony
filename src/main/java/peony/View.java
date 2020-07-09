@@ -4,10 +4,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -258,9 +256,16 @@ public class View extends JFrame implements WindowListener {
      * @param leaf is the leaf to set stuff based on.
      */
     public void setLeaf(Leaf leaf) {
-        this.leafTree.setSelectionPath(leaf.getLineage());
         this.window.setSelected(leaf);
+        TreePath path = this.leafTree.getSelectionPath();
+        Leaf current = (Leaf)this.leafTree
+            .getSelectionPath()
+            .getLastPathComponent();
+        if (leaf != null && leaf != current) {
+            this.leafTree.setSelectionPath(leaf.getLineage());
+        }
         if (leaf == null) {
+            this.leafTree.clearSelection();
             this.setPosition(new Point());
             this.setScale(0);
             this.setRotation(0);

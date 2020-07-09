@@ -40,6 +40,7 @@ public class Layout implements Artefact, TreeModel {
      */
     public Layout(String name) {
         this.name = name;
+        this.children = new ArrayList<>();
         this.root = new PointLeaf();
         this.root.setName("root");
     }
@@ -49,6 +50,7 @@ public class Layout implements Artefact, TreeModel {
      * @param name is the name to give to the layout.
      */
     public Layout(String name, Leaf root) {
+        this.children = new ArrayList<>();
         this.name = name;
         this.root = root;
     }
@@ -60,16 +62,7 @@ public class Layout implements Artefact, TreeModel {
      * @return the leaf if found or null.
      */
     public Leaf getLeafByPosition(Point pos) {
-        // TODO: fix this.
-        /*
-        for (int i = this.leaves.size() - 1; i >= 0; i--) {
-            Leaf leaf = this.leaves.get(i);
-            if (leaf.inside(pos)) {
-                return leaf;
-            }
-        }
-         */
-        return null;
+        return this.root.hit(pos);
     }
 
     /**
@@ -179,6 +172,13 @@ public class Layout implements Artefact, TreeModel {
         return new TreePath(path.toArray());
     }
 
+    /**
+     * Moves a leaf from one place to another in the tree of leaves.
+     * @param from  is the place to move it out of.
+     * @param path  is the new path from the root to the leaf.
+     * @param leaf  is the leaf we are moving.
+     * @param index is the index to add it at the new home.
+     */
     public void moveLeaf(
         Leaf from,
         TreePath path,
@@ -276,12 +276,12 @@ public class Layout implements Artefact, TreeModel {
 
     @Override
     public Object getChild(Object parent, int index) {
-        return null;
+        return ((Leaf)parent).getChildren().get(index);
     }
 
     @Override
     public int getChildCount(Object parent) {
-        return 0;
+        return ((Leaf)parent).getChildren().size();
     }
 
     @Override
@@ -292,11 +292,19 @@ public class Layout implements Artefact, TreeModel {
 
     @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
+        Leaf leaf = (Leaf)path.getLastPathComponent();
+        Leaf parent = leaf.getParent();
+        if (parent == null || parent.getChildByName((String)newValue) == null) {
+            leaf.setName((String)newValue);
+            this.changed(leaf);
+        }
     }
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        return 0;
+        int index =  ((Leaf)parent).getChildren().indexOf(child);
+        System.out.println(index);
+        return index;
     }
 
     @Override

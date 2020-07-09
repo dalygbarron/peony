@@ -11,8 +11,8 @@ import java.io.IOException;
  * program.
  */
 public class Model {
-    private int selectedLeaf = -1;
     private Layout selectedLayout;
+    private Leaf selectedLeaf;
     private File file = null;
     private Game game;
 
@@ -25,22 +25,19 @@ public class Model {
     }
 
     /**
-     * Gives you the currently selected leaf index.
-     * @return the index, which might be invalid if nothing is selected.
+     * Gives you the currently selected leaf.
+     * @return the currently selected leaf.
      */
-    public int getSelectedLeafIndex() {
+    public Leaf getSelectedLeaf() {
         return this.selectedLeaf;
     }
 
     /**
-     * Sets the currently selected leaf by it's index in the list of leaves.
-     * @param selected is the index of the leaf to set as the selected one.
-     *                 invalid values are interpreted as meaning no selection
-     *                 but since the list can grow, it's best to use a negative
-     *                 number for that.
+     * Sets the selected leaf.
+     * @param selectedLeaf is the selected leaf.
      */
-    public void setSelectedLeaf(int selected) {
-        this.selectedLeaf = selected;
+    public void setSelectedLeaf(Leaf selectedLeaf) {
+        this.selectedLeaf = selectedLeaf;
     }
 
     /**
@@ -57,7 +54,7 @@ public class Model {
      */
     public void setSelectedLayout(Layout layout) {
         this.selectedLayout = layout;
-        this.selectedLeaf = -1;
+        this.selectedLeaf = null;
     }
 
     /**

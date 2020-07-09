@@ -11,6 +11,13 @@ public class SpriteLeaf extends Leaf {
     public static final String TITLE = "sprite";
 
     /**
+     * Default constructor.
+     */
+    public SpriteLeaf() {
+        super(SpriteLeaf.TITLE);
+    }
+
+    /**
      * Creates an spriteleaf from json.
      * @param json is the thingy to turn into an sprite leaf.
      * @return the result containing the sprite leaf or error.

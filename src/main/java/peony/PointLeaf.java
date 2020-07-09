@@ -16,6 +16,13 @@ public class PointLeaf extends Leaf {
     public static final float POINT_SIZE = 10;
 
     /**
+     * Default constructor.
+     */
+    public PointLeaf() {
+        super(PointLeaf.TITLE);
+    }
+
+    /**
      * Creates an pointleaf from json.
      * @param json is the thingy to turn into an point leaf.
      * @return the result containing the point leaf or error.
@@ -39,6 +46,7 @@ public class PointLeaf extends Leaf {
         r.drawText(Point.ORIGIN, this.getName());
         r.drawLine(top, bottom);
         r.drawLine(left, right);
+        for (Leaf child: this.getChildren()) child.render(r);
         r.pop();
     }
 

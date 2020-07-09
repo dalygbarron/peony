@@ -27,12 +27,12 @@ public class LeafTransferHandler extends TransferHandler {
 
         @Override
         public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[] {LayoutTransferHandler.LAYOUT_FLAVOUR};
+            return new DataFlavor[] {LeafTransferHandler.LEAF_FLAVOUR};
         }
 
         @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return flavor.equals(LayoutTransferHandler.LAYOUT_FLAVOUR);
+            return flavor.equals(LeafTransferHandler.LEAF_FLAVOUR);
         }
 
         @Override
@@ -59,7 +59,6 @@ public class LeafTransferHandler extends TransferHandler {
 
     @Override
     public int getSourceActions(JComponent component) {
-        // TODO: allow copy as well once move weorks.
         return MOVE;
     }
 
@@ -99,27 +98,23 @@ public class LeafTransferHandler extends TransferHandler {
     public boolean importData(TransferSupport support) {
         if (!canImport(support)) return false;
         Transferable t = support.getTransferable();
-        Layout layout;
+        Leaf leaf;
         try {
-            layout = (Layout)t.getTransferData(
-                LayoutTransferHandler.LAYOUT_FLAVOUR
+            leaf = (Leaf)t.getTransferData(
+                LeafTransferHandler.LEAF_FLAVOUR
             );
         } catch (IOException | UnsupportedFlavorException e) {
             System.err.println("If you are reading this you are dead.");
             return false;
         }
-        // TODO: copy or move?
         JTree.DropLocation location =
             (JTree.DropLocation)support.getDropLocation();
-        // TODO: fix this.
-        /*
         this.layout.moveLeaf(
-            layout.getParent(),
+            leaf.getParent(),
             location.getPath(),
-            layout,
+            leaf,
             location.getChildIndex()
         );
-         */
         return true;
     }
 }
