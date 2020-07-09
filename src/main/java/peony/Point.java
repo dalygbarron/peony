@@ -38,6 +38,14 @@ public class Point implements Artefact {
     }
 
     /**
+     * Copy constructor.
+     * @param point is the thing to copy.
+     */
+    public Point(Point point) {
+        this.set(point);
+    }
+
+    /**
      * Gives you the point's x component.
      * @return the x component.
      */
@@ -166,6 +174,15 @@ public class Point implements Artefact {
      */
     public Point times(float value) {
         return new Point(this.x * value, this.y * value);
+    }
+
+    /**
+     * Multiplies the values of this point by a number destructively.
+     * @param value is the value to multiply by.
+     */
+    public void multiply(float value) {
+        this.x *= value;
+        this.y *= value;
     }
 
     /**

@@ -3,7 +3,7 @@ package peony;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +16,7 @@ public class ShapeLeaf extends Leaf {
     public static final int POINT_RADIUS = 5;
     public static final int MIN_POINTS = 3;
     private final List<Point> points = new ArrayList<>();
+    private int highlight = -1;
 
     /**
      * Creates a default shape.
@@ -36,10 +37,7 @@ public class ShapeLeaf extends Leaf {
      * @return the found point if any.
      */
     public Point getPointByPosition(Point pos) {
-        Point local = pos.minus(this.getPosition());
-        float distance = local.length();
-        float angle = local.angle() - this.getRotation();
-        local = Point.fromAngle(angle, distance * this.getScale());
+        Point local = this.getTransformation().in(pos);
         for (Point point: this.points) {
             if (point.minus(local).length() <= ShapeLeaf.POINT_RADIUS) {
                 return point;
@@ -95,11 +93,27 @@ public class ShapeLeaf extends Leaf {
     }
 
     /**
+     * Sets a node to be highlighted when rendering.
+     * @param point is the node and preceding edge to highlight.
+     */
+    public void setHighlight(Point point) {
+        this.highlight =  this.points.indexOf(point);
+    }
+
+    /**
      * Moves all the nodes then moves the leaf itself so it's nodes are in
      * the same spot but the centre of the leaf is in the middle of the nodes.
      */
     public void recentre() {
-        // TODO: this.
+        Point mid = new Point();
+        for (Point point: this.points) {
+            mid.add(point);
+        }
+        mid.multiply(1.0f / this.points.size());
+        this.getTransformation().getTranslation().add(mid);
+        for (Point point: this.points) {
+            point.subtract(mid);
+        }
     }
 
     /**
@@ -142,42 +156,27 @@ public class ShapeLeaf extends Leaf {
         boolean selected
     ) {
         super.render(g, pos, scale, selected);
-        Point point = this.points.get(0);
-        float firstDistance = point.length() * scale * this.getScale();
-        float firstAngle = point.angle() + this.getRotation();
-        Point firstPointPos = Point.fromAngle(
-            firstAngle,
-            firstDistance
-        ).plus(pos);
-        for (Point nextPoint: this.points) {
-            float distance = nextPoint.length() * scale * this.getScale();
-            float angle = nextPoint.angle() + this.getRotation();
-            Point nextPointPos = Point.fromAngle(angle, distance).plus(pos);
+        for (int i = 0; i < this.points.size(); i++) {
+            Point point = this.points.get(i);
+            Point next = this.points.get(
+                i == this.points.size() - 1 ? 0 : i + 1
+            );
+            if ((i == 0 && this.highlight != 0) || i == this.highlight + 1) {
+                g.setColor(selected ? Color.BLUE : Color.BLACK);
+            } else if (i == this.highlight) {
+                g.setColor(Color.GREEN);
+            }
             g.drawOval(
-                nextPointPos.getXi() - ShapeLeaf.POINT_RADIUS,
-                nextPointPos.getYi() - ShapeLeaf.POINT_RADIUS,
+                point.getXi() - ShapeLeaf.POINT_RADIUS,
+                point.getYi() - ShapeLeaf.POINT_RADIUS,
                 ShapeLeaf.POINT_RADIUS * 2,
                 ShapeLeaf.POINT_RADIUS * 2
             );
             g.drawLine(
-                firstPointPos.getXi(),
-                firstPointPos.getYi(),
-                nextPointPos.getXi(),
-                nextPointPos.getYi()
-            );
-            firstPointPos = nextPointPos;
-            firstDistance = distance;
-            firstAngle = angle;
-        }
-        {
-            float distance = point.length() * scale * this.getScale();
-            float angle = point.angle() + this.getRotation();
-            Point nextPointPos = Point.fromAngle(angle, distance).plus(pos);
-            g.drawLine(
-                firstPointPos.getXi(),
-                firstPointPos.getYi(),
-                nextPointPos.getXi(),
-                nextPointPos.getYi()
+                point.getXi(),
+                point.getYi(),
+                next.getXi(),
+                next.getYi()
             );
         }
     }

@@ -38,19 +38,19 @@ public class PointLeaf extends Leaf {
     ) {
         super.render(g, pos, scale, selected);
         Point top = Point.fromAngle(
-            this.getRotation(),
+            this.getTransformation().getRotation(),
             PointLeaf.POINT_SIZE / 2
         ).plus(pos);
         Point right = Point.fromAngle(
-            (float)(Math.PI / 2) + this.getRotation(),
+            (float)(Math.PI / 2) + this.getTransformation().getRotation(),
             PointLeaf.POINT_SIZE / 2
         ).plus(pos);
         Point bottom = Point.fromAngle(
-            (float)Math.PI + this.getRotation(),
+            (float)Math.PI + this.getTransformation().getRotation(),
             PointLeaf.POINT_SIZE / 2
         ).plus(pos);
         Point left = Point.fromAngle(
-            (float)(Math.PI * 3 / 2) + this.getRotation(),
+            (float)(Math.PI * 3 / 2) + this.getTransformation().getRotation(),
             PointLeaf.POINT_SIZE / 2
         ).plus(pos);
         g.drawLine(top.getXi(), top.getYi(), bottom.getXi(), bottom.getYi());

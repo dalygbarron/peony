@@ -3,10 +3,7 @@ package peony;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TreeSelectionEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 
 public class App {
@@ -25,14 +22,15 @@ public class App {
     private static void controller(View view, Model model) {
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (leaf == null) return;
             String name = view.getLeafName();
             if (name.equals("")) {
                 view.displayError("Name cannot be blank");
                 return;
             }
-            if (model.getSelectedLayout().getLeafByName(name) != null) {
+            if (true/* TODO: fix: model.getSelectedLayout().getLeafByName(name)
+             != null */) {
                 view.displayError(String.format(
                     "The name '%s' is already in use",
                     name
@@ -40,7 +38,8 @@ public class App {
                 return;
             }
             leaf.setName(name);
-            view.updateLeafList(model.getSelectedLeafIndex(), name);
+            // TODO: fix: view.updateLeafList(model.getSelectedLeafIndex(),
+            //  name);
         });
         // Game properties button.
         view.addGamePropertiesListener((ActionEvent event) -> {
@@ -100,42 +99,49 @@ public class App {
             }
         });
         // Selecting a leaf in the list.
+        // TODO: fix
+        /*
         view.addSelectLeafListener((ListSelectionEvent event) -> {
             model.setSelectedLeaf(view.getSelectedLeaf());
             view.setLeaf(model.getSelectedLeaf());
             view.getWindow().repaint();
         });
+         */
         // Changing leaf position by form.
         view.addChangeXPositionListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (leaf == null) return;
-            leaf.getPosition().setX(view.getPosition().getX());
+            leaf.getTransformation()
+                .getTranslation()
+                .setX(view.getPosition().getX());
             view.getWindow().repaint();
         });
         view.addChangeYPositionListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (leaf == null) return;
-            leaf.getPosition().setY(view.getPosition().getY());
+            leaf.getTransformation()
+                .getTranslation()
+                .setY(view.getPosition().getY());
             view.getWindow().repaint();
         });
         // Changing leaf scale by form.
         view.addChangeScaleListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (leaf == null) return;
-            leaf.setScale(view.getScale());
+            leaf.getTransformation().setScale(view.getScale());
             view.getWindow().repaint();
         });
         // Changing leaf rotation by form.
         view.addChangeRotationListener((ChangeEvent event) -> {
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (leaf == null) return;
-            leaf.setRotation(view.getRotation());
+            leaf.getTransformation().setRotation(view.getRotation());
             view.getWindow().repaint();
         });
         // Changing image leaf image
         view.addSelectImageListener((ActionEvent event) -> {
             File file = view.chooseImageFile();
-            Leaf leaf = model.getSelectedLeaf();
+            Leaf leaf = view.getSelectedLeaf();
             if (file != null && leaf instanceof ImageLeaf) {
                 ((ImageLeaf)leaf).setFile(file);
             }
@@ -146,6 +152,37 @@ public class App {
             if (layout != null) {
                 model.setSelectedLayout(layout);
                 view.setLayout(layout);
+            }
+        });
+        // Splitting points on a shape.
+        view.addSplitPointListener((ActionEvent event) -> {
+            Window window = view.getWindow();
+            Leaf selected = window.getSelected();
+            Point selectedPoint = window.getSelectedPoint();
+            if (selectedPoint != null && selected instanceof ShapeLeaf) {
+                Point newly = ((ShapeLeaf)selected).splitEdge(selectedPoint);
+                if (newly != null) window.setSelectedPoint(newly);
+                window.repaint();
+            }
+        });
+        // removing points on a shape.
+        view.addRemovePointListener((ActionEvent event) -> {
+            Window window = view.getWindow();
+            Leaf selected = window.getSelected();
+            Point selectedPoint = window.getSelectedPoint();
+            if (selectedPoint != null && selected instanceof ShapeLeaf) {
+                Point newly = ((ShapeLeaf)selected).removePoint(selectedPoint);
+                window.setSelectedPoint(newly);
+                window.repaint();
+            }
+        });
+        // recentring a shape.
+        view.addRecentrePointsListener((ActionEvent event) -> {
+            Window window = view.getWindow();
+            Leaf selected = window.getSelected();
+            if (selected instanceof ShapeLeaf) {
+                ((ShapeLeaf)selected).recentre();
+                window.repaint();
             }
         });
     	view.setVisible(true);
@@ -161,7 +198,7 @@ public class App {
     	String base = leaf.generateBaseName();
         for (int i = 1; i < Integer.MAX_VALUE; i++) {
             String name = String.format("%s%d", base, i);
-            Leaf owner = model.getSelectedLayout().getLeafByName(name);
+            Leaf owner = null;// TODO: fix: model.getSelectedLayout().getLeafByName(name);
             if (owner == null) {
                 leaf.setName(name);
                 view.getWindow().repaint();
@@ -179,8 +216,8 @@ public class App {
      */
     private static void addLeaf(View view, Model model, Leaf leaf) {
     	App.nameLeaf(view, model, leaf);
-        model.getSelectedLayout().getLeaves().add(leaf);
-        view.appendLeafList(leaf.getName());
+        // TODO: fix: model.getSelectedLayout().getLeaves().add(leaf);
+        // TODO: fix: view.appendLeafList(leaf.getName());
         view.getWindow().repaint();
     }
 }

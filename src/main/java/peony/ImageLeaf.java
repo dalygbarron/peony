@@ -74,7 +74,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
         super.render(g, pos, scale, selected);
         if (this.image != null) {
             AffineTransform tx = AffineTransform.getRotateInstance(
-                this.getRotation(),
+                this.getTransformation().getRotation(),
                 pos.getX(),
                 pos.getY()
             );

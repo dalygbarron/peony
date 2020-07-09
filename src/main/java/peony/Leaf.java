@@ -3,16 +3,22 @@ package peony;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.awt.*;
+import javax.swing.tree.TreePath;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A thing that can be overlaid into a composition and has a form in 2d space.
  */
 public abstract class Leaf implements Artefact {
+    private final List<Leaf> children = new ArrayList<>();
+    private Transformation transformation = new Transformation();
     private String name = null;
-    private Point position = new Point();
-    private float scale = 1;
-    private float rotation = 0;
+    private Leaf parent = null;
 
     /**
      * Gives you the leaf's name.
@@ -31,43 +37,62 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
-     * Gives you the leaf's position which is mutable.
-     * @return the position.
+     * Gives you the leaf's transformation.
+     * @return the transformation.
      */
-    public Point getPosition() {
-        return this.position;
+    public Transformation getTransformation() {
+        return this.transformation;
     }
 
     /**
-     * Gives you the leaf's scale which is mutable.
-     * @return the scale.
+     * Gives you the leaf's parent.
+     * @return the parent if any.
      */
-    public float getScale() {
-        return this.scale;
+    public Leaf getParent() {
+        return this.parent;
     }
 
     /**
-     * Sets the leaf's scale.
-     * @param scale is the scale to set it to.
+     * Sets the leaf's parent in the lheirachy.
+     * @param parent is the leaf to make the parent.
      */
-    public void setScale(float scale) {
-        this.scale = scale;
+    public void setParent(Leaf parent) {
+        this.parent = parent;
     }
 
     /**
-     * Gives you the leaf's rotation.
-     * @return the rotation value.
+     * Gives you access to the child list.
+     * @return the list of children.
      */
-    public float getRotation() {
-        return this.rotation;
+    public List<Leaf> getChildren() {
+        return this.children;
     }
 
     /**
-     * Sets the leaf's rotation.
-     * @param rotation is the rotation to give it.
+     * Finds the child with the specified name if there is one.
+     * @param name is the name to look for.
+     * @return the found thingy.
      */
-    public void setRotation(float rotation) {
-        this.rotation = rotation;
+    public Leaf getChildByName(String name) {
+        for (Leaf leaf: this.children) {
+            if (leaf.getName().equals(name)) return leaf;
+        }
+        return null;
+    }
+
+    /**
+     * Gives you the full treepath to this leaf through the heirachy it
+     * exists in.
+     * @return the tree path.
+     */
+    public TreePath getLineage() {
+        Deque<Leaf> path = new LinkedList<>();
+        Leaf leaf = this;
+        do {
+            path.addFirst(leaf);
+            leaf = leaf.getParent();
+        } while (leaf != null);
+        return new TreePath(path.toArray());
     }
 
     /**
@@ -77,10 +102,7 @@ public abstract class Leaf implements Artefact {
      * @return true if it is inside and false otherwise.
      */
     public boolean inside(Point point) {
-        Point local = point.minus(this.position);
-        float distance = local.length();
-        float angle = local.angle() - this.rotation;
-        return this.insideLocal(Point.fromAngle(angle, distance * this.scale));
+        return this.insideLocal(this.transformation.in(point));
     }
 
     /**
@@ -127,24 +149,23 @@ public abstract class Leaf implements Artefact {
     public static Result<Leaf> fromJson(JSONObject json) {
         String type;
         String name;
-        JSONObject position;
+        JSONObject transformation;
         float scale;
         float rotation;
         try {
             type = json.getString("type");
             name = json.getString("name");
-            scale = json.getFloat("scale");
-            rotation = json.getFloat("rotation");
-            position = json.getJSONObject("position");
+            transformation = json.getJSONObject("transformation");
         } catch (JSONException e) {
             return Result.fail(String.format(
                 "Invalid json for leaf object: %s",
                 json
             ));
         }
-        Result<Point> positionResult = Point.fromJson(position);
-        if (!positionResult.success()) {
-            return Result.fail(positionResult.message());
+        Result<Transformation> transformationResult =
+            Transformation.fromJson(transformation);
+        if (!transformationResult.success()) {
+            return Result.fail(transformationResult.message());
         }
         Result<Leaf> leaf;
         switch (type) {
@@ -169,9 +190,7 @@ public abstract class Leaf implements Artefact {
         if (leaf.success()) {
             Leaf actualLeaf = leaf.value();
             actualLeaf.name = name;
-            actualLeaf.rotation = rotation;
-            actualLeaf.scale = scale;
-            actualLeaf.position = positionResult.value();
+            actualLeaf.transformation = transformationResult.value();
         }
         return leaf;
     }
@@ -180,9 +199,7 @@ public abstract class Leaf implements Artefact {
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
-        json.put("position", this.position.toJson());
-        json.put("scale", this.scale);
-        json.put("rotation", this.rotation);
+        json.put("transformation", this.transformation.toJson());
         return json;
     }
 }

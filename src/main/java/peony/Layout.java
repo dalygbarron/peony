@@ -4,6 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -13,9 +16,10 @@ import java.util.List;
 /**
  * One layout thingy
  */
-public class Layout implements Artefact {
+public class Layout implements Artefact, TreeModel {
+    private List<TreeModelListener> treeModelListeners = new ArrayList<>();
     private String name;
-    private List<Leaf> leaves;
+    private Leaf root;
     private List<Layout> children;
     private Layout parent;
 
@@ -25,39 +29,28 @@ public class Layout implements Artefact {
      */
     public Layout() {
         this.name = "start";
-        this.leaves = new ArrayList<>();
         this.children = new ArrayList<>();
+        this.root = new PointLeaf();
+        this.root.setName("root");
+    }
+
+    /**
+     * Creates a layout with a name and other than that default stuff.
+     * @param name is the name to give it.
+     */
+    public Layout(String name) {
+        this.name = name;
+        this.root = new PointLeaf();
+        this.root.setName("root");
     }
 
     /**
      * Slightly less default constructor
      * @param name is the name to give to the layout.
      */
-    public Layout(String name) {
+    public Layout(String name, Leaf root) {
         this.name = name;
-        this.leaves = new ArrayList<>();
-        this.children = new ArrayList<>();
-    }
-
-    /**
-     * Gives you the list of leaves.
-     * @return the list of leaves.
-     */
-    public List<Leaf> getLeaves() {
-        return this.leaves;
-    }
-
-    /**
-     * Finds a leaf in the list of leaves that matches the given name and
-     * returns it.
-     * @param name is the name of the leaf to find.
-     * @return the found leaf if one is found or null otherwise
-     */
-    public Leaf getLeafByName(String name) {
-        for (Leaf leaf: this.leaves) {
-            if (leaf.getName().equals(name)) return leaf;
-        }
-        return null;
+        this.root = root;
     }
 
     /**
@@ -67,12 +60,15 @@ public class Layout implements Artefact {
      * @return the leaf if found or null.
      */
     public Leaf getLeafByPosition(Point pos) {
+        // TODO: fix this.
+        /*
         for (int i = this.leaves.size() - 1; i >= 0; i--) {
             Leaf leaf = this.leaves.get(i);
             if (leaf.inside(pos)) {
                 return leaf;
             }
         }
+         */
         return null;
     }
 
@@ -183,22 +179,49 @@ public class Layout implements Artefact {
         return new TreePath(path.toArray());
     }
 
-    @Override
-    public String toString() {
-        return name;
+    public void moveLeaf(
+        Leaf from,
+        TreePath path,
+        Leaf leaf,
+        int index
+    ) {
+        Leaf parent = (Leaf)path.getLastPathComponent();
+        leaf.setParent(parent);
+        if (index == -1) {
+            parent.getChildren().add(leaf);
+        } else {
+            parent.getChildren().add(index, leaf);
+        }
+        if (from == parent) {
+            int i = 0;
+            int kill = -1;
+            for (Leaf child: from.getChildren()) {
+                if (child == leaf && i != index) {
+                    kill = i;
+                    break;
+                }
+                i++;
+            }
+            if (kill >= 0) from.getChildren().remove(kill);
+        } else if (from != null) {
+            from.getChildren().remove(leaf);
+        }
+        this.changed(this.root);
     }
 
-    @Override
-    public JSONObject toJson() {
-        JSONArray leaves = new JSONArray();
-        JSONArray children = new JSONArray();
-        for (Layout child: this.getChildren()) children.put(child.toJson());
-        for (Leaf leaf: this.getLeaves()) leaves.put(leaf.toJson());
-        JSONObject json = new JSONObject();
-        json.put("name", this.name);
-        json.put("leaves", leaves);
-        json.put("children", children);
-        return json;
+    /**
+     * When you change shit that is relevant to the leaf tree and you want
+     * the world to know about it you must call this method.
+     * @param leaf is the leaf that changed.
+     */
+    public void changed(Leaf leaf) {
+        TreeModelEvent event = new TreeModelEvent(
+            this,
+            leaf.getLineage()
+        );
+        for (TreeModelListener listener: this.treeModelListeners) {
+            listener.treeStructureChanged(event);
+        }
     }
 
     /**
@@ -209,26 +232,80 @@ public class Layout implements Artefact {
      */
     public static Result<Layout> fromJson(JSONObject json) {
         String name;
-        JSONArray leaves;
+        JSONObject rootJson;
         JSONArray children;
         try {
             name = json.getString("name");
-            leaves = json.getJSONArray("leaves");
+            rootJson = json.getJSONObject("root");
             children = json.getJSONArray("children");
         } catch (JSONException e) {
             return Result.fail("Invalid json for layout object.");
         }
-        Layout layout = new Layout(name);
-        for (int i = 0; i < leaves.length(); i++) {
-            Result<Leaf> leaf = Leaf.fromJson(leaves.getJSONObject(i));
-            if (leaf.success()) layout.getLeaves().add(leaf.value());
-            else return Result.fail(leaf.message());
-        }
+        Result<Leaf> root = Leaf.fromJson(rootJson);
+        if (!root.success()) return Result.fail(root.message());
+        Layout layout = new Layout(name, root.value());
         for (int i = 0; i < children.length(); i++) {
             Result<Layout> child = Layout.fromJson(children.getJSONObject(i));
             if (child.success()) layout.addChild(child.value());
             else return Result.fail(child.message());
         }
         return Result.ok(layout);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject root = this.root.toJson();
+        JSONArray children = new JSONArray();
+        for (Layout child: this.getChildren()) children.put(child.toJson());
+        JSONObject json = new JSONObject();
+        json.put("name", this.name);
+        json.put("root", root);
+        json.put("children", children);
+        return json;
+    }
+
+    @Override
+    public Object getRoot() {
+        return this.root;
+    }
+
+    @Override
+    public Object getChild(Object parent, int index) {
+        return null;
+    }
+
+    @Override
+    public int getChildCount(Object parent) {
+        return 0;
+    }
+
+    @Override
+    public boolean isLeaf(Object node) {
+        Leaf leaf = (Leaf)node;
+        return leaf.getChildren().isEmpty();
+    }
+
+    @Override
+    public void valueForPathChanged(TreePath path, Object newValue) {
+    }
+
+    @Override
+    public int getIndexOfChild(Object parent, Object child) {
+        return 0;
+    }
+
+    @Override
+    public void addTreeModelListener(TreeModelListener l) {
+        this.treeModelListeners.add(l);
+    }
+
+    @Override
+    public void removeTreeModelListener(TreeModelListener l) {
+        this.treeModelListeners.remove(l);
     }
 }

@@ -25,19 +25,6 @@ public class Model {
     }
 
     /**
-     * Gives you the currently selected leaf.
-     * @return the currently selected leaf or null if there is not one.
-     */
-    public Leaf getSelectedLeaf() {
-        if (this.selectedLeaf >= 0 &&
-            this.selectedLeaf < this.selectedLayout.getLeaves().size()
-        ) {
-            return this.selectedLayout.getLeaves().get(this.selectedLeaf);
-        }
-        return null;
-    }
-
-    /**
      * Gives you the currently selected leaf index.
      * @return the index, which might be invalid if nothing is selected.
      */

@@ -8,22 +8,21 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 /**
- * Takes care of transferring layouts around the game layout heirachy and the
- * visual incarnation of that.
+ * Handles transferring leaves around their tree.
  */
-public class LayoutTransferHandler extends TransferHandler {
+public class LeafTransferHandler extends TransferHandler {
     /**
      * Transferable that stores a layout.
      */
-    public static class LayoutTransferable implements Transferable {
-        private Layout layout;
+    public static class LeafTransferable implements Transferable {
+        private Leaf leaf;
 
         /**
          * Creates it by putting in it's transferable.
-         * @param layout is the layout to put in it.
+         * @param leaf is the leaf to put in it.
          */
-        public LayoutTransferable(Layout layout) {
-            this.layout = layout;
+        public LeafTransferable(Leaf leaf) {
+            this.leaf = leaf;
         }
 
         @Override
@@ -40,50 +39,49 @@ public class LayoutTransferHandler extends TransferHandler {
         public Object getTransferData(DataFlavor flavor)
             throws UnsupportedFlavorException, IOException
         {
-            return this.layout;
+            return this.leaf;
         }
     }
 
-    public static final DataFlavor LAYOUT_FLAVOUR = new DataFlavor(
-        Layout.class,
-        "Layout"
+    public static final DataFlavor LEAF_FLAVOUR = new DataFlavor(
+        Leaf.class,
+        "Leaf"
     );
-    private Game game;
+    private Layout layout;
 
     /**
-     * Creates it and links it to the game.
-     * @param game is the game whose layout tree to use it on.
+     * Creates it and links it to the layout.
+     * @param layout is the layout whose leaf tree to work on.
      */
-    public LayoutTransferHandler(Game game) {
-        this.game = game;
+    public LeafTransferHandler(Layout layout) {
+        this.layout = layout;
     }
 
     @Override
     public int getSourceActions(JComponent component) {
+        // TODO: allow copy as well once move weorks.
         return MOVE;
     }
 
     @Override
     protected Transferable createTransferable(JComponent component) {
         JTree tree = (JTree)component;
-        return new LayoutTransferable(
-            (Layout)tree.getLastSelectedPathComponent()
+        return new LeafTransferHandler.LeafTransferable(
+            (Leaf)tree.getLastSelectedPathComponent()
         );
     }
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport support) {
         if (
-            !support.isDataFlavorSupported(LayoutTransferHandler.LAYOUT_FLAVOUR)
+            !support.isDataFlavorSupported(LeafTransferHandler.LEAF_FLAVOUR)
         ) {
             return false;
         }
         Transferable t = support.getTransferable();
-        Layout layout;
+        Leaf leaf;
         try {
-            layout = (Layout)t.getTransferData(
-                LayoutTransferHandler.LAYOUT_FLAVOUR
-            );
+            leaf = (Leaf)t.getTransferData(LeafTransferHandler.LEAF_FLAVOUR);
         } catch (IOException | UnsupportedFlavorException e) {
             System.err.println("If you are reading this you are dead.");
             return false;
@@ -92,7 +90,7 @@ public class LayoutTransferHandler extends TransferHandler {
             (JTree.DropLocation)support.getDropLocation();
         TreePath path = location.getPath();
         for (Object node: path.getPath()) {
-            if (node == layout) return false;
+            if (node == leaf) return false;
         }
         return true;
     }
@@ -107,17 +105,21 @@ public class LayoutTransferHandler extends TransferHandler {
                 LayoutTransferHandler.LAYOUT_FLAVOUR
             );
         } catch (IOException | UnsupportedFlavorException e) {
-            System.out.println("If you are reading this you are dead.");
+            System.err.println("If you are reading this you are dead.");
             return false;
         }
+        // TODO: copy or move?
         JTree.DropLocation location =
             (JTree.DropLocation)support.getDropLocation();
-        this.game.moveLayout(
+        // TODO: fix this.
+        /*
+        this.layout.moveLeaf(
             layout.getParent(),
             location.getPath(),
             layout,
             location.getChildIndex()
         );
+         */
         return true;
     }
 }

@@ -12,6 +12,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Enumeration;
@@ -20,6 +21,7 @@ import java.util.Enumeration;
  * Manages the program's user interface.
  */
 public class View extends JFrame implements WindowListener {
+    private final PigTree leafTree = new PigTree();
     private final PigTree mapTree = new PigTree();
     private final JSplitPane verticalSplit;
     private final JFileChooser imageChooser = new JFileChooser();
@@ -39,8 +41,6 @@ public class View extends JFrame implements WindowListener {
     private final JMenuItem addShapeButton = new JMenuItem("Shape");
     private final JMenuItem addPointButton = new JMenuItem("Point");
     private final JMenuItem addLayoutButton = new JMenuItem("Layout");
-    private final JMenuItem removeButton = new JMenuItem("Remove");
-    private final DefaultListModel<String> leafListModel = new DefaultListModel<>();
     private final SpinnerNumberModel xPositionModel = View.makePositionModel();
     private final SpinnerNumberModel yPositionModel = View.makePositionModel();
     private final SpinnerNumberModel scaleModel = View.makeScaleModel();
@@ -50,10 +50,13 @@ public class View extends JFrame implements WindowListener {
     private final JSpinner yPosition = new JSpinner(this.yPositionModel);
     private final JSpinner scale = new JSpinner(this.scaleModel);
     private final JSpinner rotation = new JSpinner(this.rotationModel);
+    private final JTextField displayName = new JTextField(10);
     private final JButton sprite = new JButton("Select Sprite");
     private final JButton image = new JButton("Select Image");
-    private final JTextField displayName = new JTextField(10);
-    private final JList<String> leafList = new JList<>(this.leafListModel);
+    private final JMenuItem removeButton = new JMenuItem("Remove");
+    private final JButton splitPointButton = new JButton("Split");
+    private final JButton removePointButton = new JButton("Remove");
+    private final JButton recentrePointsButton = new JButton("Recentre");
     private final Window window = new Window();
     private final RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
 
@@ -110,12 +113,17 @@ public class View extends JFrame implements WindowListener {
         this.leafMainPropertiesPanel.add(this.scale);
         this.leafMainPropertiesPanel.add(new JLabel("Rotation"));
         this.leafMainPropertiesPanel.add(this.rotation);
+        this.leafMainPropertiesPanel.add(new JLabel("Display Name"));
+        this.leafMainPropertiesPanel.add(this.displayName);
         this.leafImagePropertiesPanel.add(new JLabel("Image"));
         this.leafImagePropertiesPanel.add(this.image);
         this.leafSpritePropertiesPanel.add(new JLabel("Sprite"));
         this.leafSpritePropertiesPanel.add(this.sprite);
-        this.leafShapePropertiesPanel.add(new JLabel("Display Name"));
-        this.leafShapePropertiesPanel.add(this.displayName);
+        this.splitPointButton.setMnemonic(KeyEvent.VK_ENTER);
+        this.removePointButton.setMnemonic(KeyEvent.VK_BACK_SPACE);
+        this.leafShapePropertiesPanel.add(this.splitPointButton);
+        this.leafShapePropertiesPanel.add(this.removePointButton);
+        this.leafShapePropertiesPanel.add(this.recentrePointsButton);
         this.leafImagePropertiesPanel.setVisible(false);
         this.leafSpritePropertiesPanel.setVisible(false);
         this.leafShapePropertiesPanel.setVisible(false);
@@ -133,12 +141,17 @@ public class View extends JFrame implements WindowListener {
         this.mapTree.setDropMode(DropMode.ON_OR_INSERT);
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
-        this.leafList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.leafTree.getSelectionModel().setSelectionMode(
+            TreeSelectionModel.SINGLE_TREE_SELECTION
+        );
+        this.leafTree.setEditable(true);
+        this.leafTree.setDragEnabled(true);
+        this.leafTree.setDropMode(DropMode.ON_OR_INSERT);
         JTabbedPane mainTabs = new JTabbedPane();
         mainTabs.addTab("Layout", this.window);
         mainTabs.addTab("Script", this.script);
         JTabbedPane listTabs = new JTabbedPane();
-        listTabs.addTab("Leaves", new JScrollPane(this.leafList));
+        listTabs.addTab("Leaves", new JScrollPane(this.leafTree));
         listTabs.addTab("Layouts", new JScrollPane(this.mapTree));
         this.verticalSplit = new JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
@@ -172,12 +185,11 @@ public class View extends JFrame implements WindowListener {
     }
 
     /**
-     * Gives you the current selected index in the leaf list if any.
-     * @return the leaf list's selection index which is -1 when nothing is
-     *         selected.
+     * Gives you the currently selected leaf.
+     * @return the currently selected leaf if any.
      */
-    public int getSelectedLeaf() {
-        return this.leafList.getSelectedIndex();
+    public Leaf getSelectedLeaf() {
+        return (Leaf)leafTree.getLastSelectedPathComponent();
     }
 
     /**
@@ -246,9 +258,7 @@ public class View extends JFrame implements WindowListener {
      * @param leaf is the leaf to set stuff based on.
      */
     public void setLeaf(Leaf leaf) {
-        int index = this.leafIndex(leaf);
-        if (index >= 0) this.leafList.setSelectedIndex(index);
-        else this.leafList.clearSelection();
+        this.leafTree.setSelectionPath(leaf.getLineage());
         this.window.setSelected(leaf);
         if (leaf == null) {
             this.setPosition(new Point());
@@ -259,9 +269,9 @@ public class View extends JFrame implements WindowListener {
             this.leafSpritePropertiesPanel.setVisible(false);
             this.leafShapePropertiesPanel.setVisible(false);
         } else {
-            this.setPosition(leaf.getPosition());
-            this.setScale(leaf.getScale());
-            this.setRotation(leaf.getRotation());
+            this.setPosition(leaf.getTransformation().getTranslation());
+            this.setScale(leaf.getTransformation().getScale());
+            this.setRotation(leaf.getTransformation().getRotation());
             this.leafName.setText(leaf.getName());
             if (leaf instanceof ImageLeaf) {
                 this.leafImagePropertiesPanel.setVisible(true);
@@ -291,10 +301,8 @@ public class View extends JFrame implements WindowListener {
      * @param layout is the layout selected.
      */
     public void setLayout(Layout layout) {
-        this.leafListModel.clear();
-        for (Leaf leaf: layout.getLeaves()) {
-            this.leafListModel.addElement(leaf.getName());
-        }
+        this.leafTree.setTransferHandler(new LeafTransferHandler(layout));
+        this.leafTree.setModel(layout);
         this.window.setLayout(layout);
     }
 
@@ -307,44 +315,19 @@ public class View extends JFrame implements WindowListener {
     }
 
     /**
-     * Finds the index of the given leaf in the leaf list if it's there.
-     * @param leaf is the leaf to look for.
-     * @return the index of it if it's found, otherwise -1.
-     */
-    public int leafIndex(Leaf leaf) {
-        if (leaf == null) return -1;
-        int i = 0;
-        for (Enumeration<String> e = this.leafListModel.elements(); e.hasMoreElements();) {
-            String name = e.nextElement();
-            if (leaf.getName().equals(name)) return i;
-            i++;
-        }
-        return -1;
-    }
-
-    /**
-     * Adds a leaf name onto the end of the leaf list.
-     * @param name is the leaf name to add.
-     */
-    public void appendLeafList(String name) {
-        this.leafListModel.addElement(name);
-    }
-
-    /**
-     * Updates the name of a leaf in the leaf list.
-     * @param index is the index in the list to update.
-     * @param name  is the name of the leaf name to set.
-     */
-    public void updateLeafList(int index, String name) {
-        this.leafListModel.set(index, name);
-    }
-
-    /**
      * Adds a listener to find out when an item is chosen in the map tree.
      * @param listener is the listener to add.
      */
     public void addMapTreeListener(TreeSelectionListener listener) {
         this.mapTree.addTreeSelectionListener(listener);
+    }
+
+    /**
+     * Adds a listener to find out when an item is chosen in the leaf tree.
+     * @param listener is the one who listens.
+     */
+    public void addLeafTreeListener(TreeSelectionListener listener) {
+        this.leafTree.addTreeSelectionListener(listener);
     }
 
     /**
@@ -437,14 +420,6 @@ public class View extends JFrame implements WindowListener {
     }
 
     /**
-     * Adds a listener onto the leaf list for when something is selected in it.
-     * @param listener is the listener to add.
-     */
-    public void addSelectLeafListener(ListSelectionListener listener) {
-        this.leafList.addListSelectionListener(listener);
-    }
-
-    /**
      * Adds a listener onto the leaf x position spinner.
      * @param listener is the listener.
      */
@@ -498,6 +473,30 @@ public class View extends JFrame implements WindowListener {
      */
     public void addWindowMouseListener(MouseListener listener) {
         this.window.addMouseListener(listener);
+    }
+
+    /**
+     * Adds a listener to the split point button.
+     * @param listener is the listener to add.
+     */
+    public void addSplitPointListener(ActionListener listener) {
+        this.splitPointButton.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener to the remove point button.
+     * @param listener is the listener to add.
+     */
+    public void addRemovePointListener(ActionListener listener) {
+        this.removePointButton.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener to the recentre points button.
+     * @param listener is the listener to add.
+     */
+    public void addRecentrePointsListener(ActionListener listener) {
+        this.recentrePointsButton.addActionListener(listener);
     }
 
     /**
@@ -567,20 +566,6 @@ public class View extends JFrame implements WindowListener {
      */
     private static SpinnerNumberModel makeRotationModel() {
         return new SpinnerNumberModel(0, -Math.PI, Math.PI, 0.3);
-    }
-
-    /**
-     * Creates a node in the layout tree for a given layout and recursively
-     * does it's children.
-     * @param layout is the layout to create for.
-     * @return the created node.
-     */
-    private static DefaultMutableTreeNode layoutNode(Layout layout) {
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(layout);
-        for (Layout child: layout.getChildren()) {
-            node.add(View.layoutNode(child));
-        }
-        return node;
     }
 
     @Override

@@ -13,7 +13,7 @@ import javax.swing.*;
  * with it to move stuff and all that.
  */
 public class Window extends JPanel
-    implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener
+    implements MouseListener, MouseWheelListener, MouseMotionListener
 {
     public static final int NORMAL_WIDTH = 640;
     public static final int NORMAL_HEIGHT = 640;
@@ -37,7 +37,6 @@ public class Window extends JPanel
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
         this.addMouseMotionListener(this);
-        this.addKeyListener(this);
     }
 
     /**
@@ -57,11 +56,36 @@ public class Window extends JPanel
     }
 
     /**
+     * Gives you the currently selected leaf.
+     * @return the selected leaf if any.
+     */
+    public Leaf getSelected() {
+        return this.selected;
+    }
+
+    /**
      * Sets the leaf that this window will have as the selected leaf.
      * @param leaf is the leaf to select.
      */
     public void setSelected(Leaf leaf) {
         this.selected = leaf;
+    }
+
+    /**
+     * Gives you the selected point.
+     * @return the selected point if any.
+     */
+    public Point getSelectedPoint() {
+        return this.selectedPoint;
+    }
+
+    /**
+     * Sets the window's selected point.
+     * @param point is the point to set it to. You can set it to null if you
+     *              want it to be nothing if you want man.
+     */
+    public void setSelectedPoint(Point point) {
+        this.selectedPoint = point;
     }
 
     /**
@@ -136,9 +160,12 @@ public class Window extends JPanel
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (this.layout != null) {
-            for (Leaf leaf: this.layout.getLeaves()) {
-                Point origin = this.toScreen(leaf.getPosition());
-                leaf.render(g, origin, this.zoom, leaf == this.selected);
+            Leaf root = (Leaf)this.layout.getRoot();
+            if (root instanceof ShapeLeaf) {
+                ((ShapeLeaf)root).setHighlight(this.selectedPoint);
+            }
+            if (root != null) {
+                root.render(g, new Point(), this.zoom, root == this.selected);
             }
         }
         g.setColor(Color.BLACK);
@@ -148,7 +175,7 @@ public class Window extends JPanel
         }
         this.drawRectangle(
             new Point(),
-            new Point(Window.NORMAL_HEIGHT, Window.NORMAL_HEIGHT),
+            new Point(Window.NORMAL_WIDTH, Window.NORMAL_HEIGHT),
             g
         );
     }
@@ -166,7 +193,6 @@ public class Window extends JPanel
     @Override
     public void mousePressed(MouseEvent e) {
         this.mouse.set(e.getX(), e.getY());
-        this.requestFocus();
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.layout == null) return;
             Point pos = this.fromScreen(this.mouse);
@@ -206,7 +232,9 @@ public class Window extends JPanel
                 selectedPoint.subtract(delta.times(1 / this.zoom));
                 this.repaint();
             } else if (this.selected != null) {
-                selected.getPosition().subtract(delta.times(1 / this.zoom));
+                selected.getTransformation()
+                    .getTranslation()
+                    .subtract(delta.times(1 / this.zoom));
                 this.repaint();
             }
         } else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -226,30 +254,5 @@ public class Window extends JPanel
         this.zoom -= e.getPreciseWheelRotation() / 15;
         if (this.zoom < Window.MIN_ZOOM) this.zoom = Window.MIN_ZOOM;
         this.repaint();
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // do nothing I think.
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (this.selectedPoint == null) return;
-        if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-            Point newSelected = ((ShapeLeaf)this.selected)
-                .removePoint(this.selectedPoint);
-            if (newSelected != null) this.selectedPoint = newSelected;
-            this.repaint();
-        } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            Point newPoint = ((ShapeLeaf)this.selected)
-                .splitEdge(this.selectedPoint);
-            if (newPoint != null) this.selectedPoint = newPoint;
-            this.repaint();
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
     }
 }
