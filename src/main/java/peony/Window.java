@@ -1,8 +1,6 @@
 package peony;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +17,10 @@ public class Window extends JPanel
     public static final int NORMAL_HEIGHT = 640;
     public static final int MARGIN = 50;
     public static final float MIN_ZOOM = 0.1f;
+    public static final float SCALE_POWER = 0.066f;
     private List<WindowListener> listeners = new ArrayList<>();
     private Point mouse = new Point();
-    private Point camera = new Point(
-        (float)Window.NORMAL_WIDTH / 2,
-        (float)Window.NORMAL_HEIGHT / 2
-    );
-    private float zoom = 1;
+    private Transformation camera = new Transformation(new Point(), 0, 1);
     private Layout layout = null;
     private Leaf selected = null;
     private Point selectedPoint = null;
@@ -46,12 +41,10 @@ public class Window extends JPanel
     public void setLayout(Layout layout) {
         this.layout = layout;
         this.selected = null;
-        this.camera = new Point(
-            (float)Window.NORMAL_WIDTH / 2,
-            (float)Window.NORMAL_HEIGHT / 2
+        this.camera.getTranslation().set(0, 0);
+        this.camera.setScale(
+            (float)this.getHeight() / (Window.NORMAL_HEIGHT + Window.MARGIN)
         );
-        this.zoom =
-            (float)this.getHeight() /  (Window.NORMAL_HEIGHT + Window.MARGIN);
         this.repaint();
     }
 
@@ -101,49 +94,11 @@ public class Window extends JPanel
     }
 
     /**
-     * Converts a point from world coordinates to screen coordinates.
-     * @param point is the point to convert which should not be modified.
-     * @return the converted version.
-     */
-    Point toScreen(Point point) {
-        return point.minus(this.camera)
-            .times(this.zoom)
-            .plus(this.getMiddle());
-    }
-
-    /**
-     * Converts a point from screen coordinates to world coordinates.
-     * @param point is the point to convert which should not be modified.
-     * @return the converted version.
-     */
-    public Point fromScreen(Point point) {
-        return point
-            .minus(this.getMiddle())
-            .times(1 / this.zoom)
-            .plus(this.camera);
-    }
-
-    /**
      * Adds a listener to the list of window listeners.
      * @param listener is the thing that listens.
      */
     public void addListener(WindowListener listener) {
         this.listeners.add(listener);
-    }
-
-    /**
-     * Draws a rectangle from world coordinates in screen coordinates.
-     * @param origin     top left corner in world coordinates.
-     * @param dimensions width and height in world coordinates.
-     * @param g          graphics drawing object.
-     */
-    private void drawRectangle(Point origin, Point dimensions, Graphics g) {
-        Point end = this.toScreen(origin.plus(dimensions));
-        origin = this.toScreen(origin);
-        g.drawLine(origin.getXi(), origin.getYi(), end.getXi(), origin.getYi());
-        g.drawLine(end.getXi(), origin.getYi(), end.getXi(), end.getYi());
-        g.drawLine(end.getXi(), end.getYi(), origin.getXi(), end.getYi());
-        g.drawLine(origin.getXi(), end.getYi(), origin.getXi(), origin.getYi());
     }
 
     /**
@@ -159,24 +114,29 @@ public class Window extends JPanel
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (!(g instanceof Graphics2D)) return;
+        Renderer r = new Renderer((Graphics2D) g);
+        r.push(this.camera);
         if (this.layout != null) {
             Leaf root = (Leaf)this.layout.getRoot();
             if (root instanceof ShapeLeaf) {
                 ((ShapeLeaf)root).setHighlight(this.selectedPoint);
             }
             if (root != null) {
-                root.render(g, new Point(), this.zoom, root == this.selected);
+                //root.render(g, new Point(), this.zoom, root == this.selected);
             }
         }
         g.setColor(Color.BLACK);
+        Point corner = new Point(
+            (float)Window.NORMAL_WIDTH / -2,
+            (float)Window.NORMAL_HEIGHT / -2
+        );
         if (this.layout != null) {
-            Point origin = this.toScreen(new Point());
-            g.drawString(layout.getFullName(), origin.getXi(), origin.getYi());
+            r.drawText(corner, layout.getFullName());
         }
-        this.drawRectangle(
-            new Point(),
-            new Point(Window.NORMAL_WIDTH, Window.NORMAL_HEIGHT),
-            g
+        r.drawRectangle(
+            corner,
+            new Point(Window.NORMAL_WIDTH, Window.NORMAL_HEIGHT)
         );
     }
 
@@ -195,7 +155,7 @@ public class Window extends JPanel
         this.mouse.set(e.getX(), e.getY());
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.layout == null) return;
-            Point pos = this.fromScreen(this.mouse);
+            Point pos = this.camera.out(this.mouse);
             this.selected = this.layout.getLeafByPosition(pos);
             this.selectedPoint = null;
             if (this.selected instanceof ShapeLeaf) {
@@ -229,16 +189,18 @@ public class Window extends JPanel
         this.mouse.set(newMouse);
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.selectedPoint != null) {
-                selectedPoint.subtract(delta.times(1 / this.zoom));
+                selectedPoint.subtract(delta.times(1 / this.camera.getScale()));
                 this.repaint();
             } else if (this.selected != null) {
                 selected.getTransformation()
                     .getTranslation()
-                    .subtract(delta.times(1 / this.zoom));
+                    .subtract(delta.times(1 / this.camera.getScale()));
                 this.repaint();
             }
         } else if (e.getButton() == MouseEvent.BUTTON3) {
-            this.camera.add(delta.times(1 / this.zoom));
+            this.camera
+                .getTranslation()
+                .subtract(delta);
             this.repaint();
         }
     }
@@ -251,8 +213,14 @@ public class Window extends JPanel
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         this.mouse.set(e.getX(), e.getY());
-        this.zoom -= e.getPreciseWheelRotation() / 15;
-        if (this.zoom < Window.MIN_ZOOM) this.zoom = Window.MIN_ZOOM;
+        this.camera.setRotation(this.camera.getRotation() + 0.01f);
+        this.camera.setScale(
+            this.camera.getScale() - (float)e.getPreciseWheelRotation() *
+                Window.SCALE_POWER
+        );
+        if (this.camera.getScale() < Window.MIN_ZOOM) {
+            this.camera.setScale(Window.MIN_ZOOM);
+        }
         this.repaint();
     }
 }

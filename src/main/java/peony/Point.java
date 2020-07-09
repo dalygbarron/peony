@@ -7,6 +7,7 @@ import org.json.JSONObject;
  * Represents a point or vector or whatever in 2d space.
  */
 public class Point implements Artefact {
+    public static final Point ORIGIN = new Point();
     private float x;
     private float y;
 

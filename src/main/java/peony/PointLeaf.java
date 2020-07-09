@@ -13,7 +13,7 @@ import java.awt.*;
 public class PointLeaf extends Leaf {
     public static final String TITLE = "point";
     public static final float SELECT_DISTANCE = 16;
-    public static final float POINT_SIZE = 20;
+    public static final float POINT_SIZE = 10;
 
     /**
      * Creates an pointleaf from json.
@@ -30,31 +30,16 @@ public class PointLeaf extends Leaf {
     }
 
     @Override
-    public void render(
-        Graphics g,
-        Point pos,
-        float scale,
-        boolean selected
-    ) {
-        super.render(g, pos, scale, selected);
-        Point top = Point.fromAngle(
-            this.getTransformation().getRotation(),
-            PointLeaf.POINT_SIZE / 2
-        ).plus(pos);
-        Point right = Point.fromAngle(
-            (float)(Math.PI / 2) + this.getTransformation().getRotation(),
-            PointLeaf.POINT_SIZE / 2
-        ).plus(pos);
-        Point bottom = Point.fromAngle(
-            (float)Math.PI + this.getTransformation().getRotation(),
-            PointLeaf.POINT_SIZE / 2
-        ).plus(pos);
-        Point left = Point.fromAngle(
-            (float)(Math.PI * 3 / 2) + this.getTransformation().getRotation(),
-            PointLeaf.POINT_SIZE / 2
-        ).plus(pos);
-        g.drawLine(top.getXi(), top.getYi(), bottom.getXi(), bottom.getYi());
-        g.drawLine(left.getXi(), left.getYi(), right.getXi(), right.getYi());
+    public void render(Renderer r) {
+        Point top = new Point(0, -PointLeaf.POINT_SIZE);
+        Point bottom = new Point(0, PointLeaf.POINT_SIZE);
+        Point left = new Point(-PointLeaf.POINT_SIZE, 0);
+        Point right = new Point(PointLeaf.POINT_SIZE, 0);
+        r.push(this.getTransformation());
+        r.drawText(Point.ORIGIN, this.getName());
+        r.drawLine(top, bottom);
+        r.drawLine(left, right);
+        r.pop();
     }
 
     @Override

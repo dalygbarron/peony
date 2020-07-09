@@ -65,13 +65,8 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     }
 
     @Override
-    public void render(
-        Graphics g,
-        Point pos,
-        float scale,
-        boolean selected
-    ) {
-        super.render(g, pos, scale, selected);
+    public void render(Renderer r) {
+        /*
         if (this.image != null) {
             AffineTransform tx = AffineTransform.getRotateInstance(
                 this.getTransformation().getRotation(),
@@ -82,6 +77,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
             tx.scale(scale, scale);
             ((Graphics2D)g).drawImage(this.image, tx, null);
         }
+         */
     }
 
     @Override

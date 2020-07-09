@@ -149,35 +149,20 @@ public class ShapeLeaf extends Leaf {
     }
 
     @Override
-    public void render(
-        Graphics g,
-        Point pos,
-        float scale,
-        boolean selected
-    ) {
-        super.render(g, pos, scale, selected);
+    public void render(Renderer r) {
         for (int i = 0; i < this.points.size(); i++) {
             Point point = this.points.get(i);
             Point next = this.points.get(
                 i == this.points.size() - 1 ? 0 : i + 1
             );
             if ((i == 0 && this.highlight != 0) || i == this.highlight + 1) {
-                g.setColor(selected ? Color.BLUE : Color.BLACK);
+                // TODO: selected replacement
+                r.setColour(false ? Color.BLUE : Color.BLACK);
             } else if (i == this.highlight) {
-                g.setColor(Color.GREEN);
+                r.setColour(Color.GREEN);
             }
-            g.drawOval(
-                point.getXi() - ShapeLeaf.POINT_RADIUS,
-                point.getYi() - ShapeLeaf.POINT_RADIUS,
-                ShapeLeaf.POINT_RADIUS * 2,
-                ShapeLeaf.POINT_RADIUS * 2
-            );
-            g.drawLine(
-                point.getXi(),
-                point.getYi(),
-                next.getXi(),
-                next.getYi()
-            );
+            r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
+            r.drawLine(point, next);
         }
     }
 

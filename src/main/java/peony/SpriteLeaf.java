@@ -27,13 +27,8 @@ public class SpriteLeaf extends Leaf {
     }
 
     @Override
-    public void render(
-        Graphics g,
-        Point pos,
-        float scale,
-        boolean selected
-    ) {
-        super.render(g, pos, scale, selected);
+    public void render(Renderer r) {
+        // TODO: something.
     }
 
     @Override

@@ -116,20 +116,9 @@ public abstract class Leaf implements Artefact {
 
     /**
      * Draws this leaf onto the screen.
-     * @param pos      is the place to draw it.
-     * @param scale    is the size to draw it at.
-     * @param selected is whether to draw it in the style for when it's
-     *                 selected, or in the normal style.
+     * @param r is the renderer to use.
      */
-    public void render(
-        Graphics g,
-        Point pos,
-        float scale,
-        boolean selected
-    ) {
-        g.setColor(selected ? Color.BLUE : Color.BLACK);
-        g.drawString(this.getName(), pos.getXi(), pos.getYi());
-    }
+    public abstract void render(Renderer r);
 
     /**
      * Gives you the root part of the default name this leaf should have. The
