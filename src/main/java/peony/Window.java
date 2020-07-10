@@ -15,12 +15,14 @@ public class Window extends JPanel
 {
     public static final int NORMAL_WIDTH = 640;
     public static final int NORMAL_HEIGHT = 640;
-    public static final int MARGIN = 50;
+    public static final int HALF_WIDTH = Window.NORMAL_WIDTH / 2;
+    public static final int HALF_HEIGHT = Window.NORMAL_HEIGHT / 2;
+    public static final float MARGIN = 50;
     public static final float MIN_ZOOM = 0.1f;
     public static final float SCALE_POWER = 0.066f;
-    private List<WindowListener> listeners = new ArrayList<>();
-    private Point mouse = new Point();
-    private Transformation camera = new Transformation(new Point(), 0, 1);
+    private final List<WindowListener> listeners = new ArrayList<>();
+    private final Point mouse = new Point();
+    private final Transformation camera = new Transformation(new Point(), 0, 1);
     private Layout layout = null;
     private Leaf selected = null;
     private Point selectedPoint = null;
@@ -41,10 +43,16 @@ public class Window extends JPanel
     public void setLayout(Layout layout) {
         this.layout = layout;
         this.selected = null;
-        this.camera.getTranslation().set(0, 0);
-        this.camera.setScale(
-            (float)this.getHeight() / (Window.NORMAL_HEIGHT + Window.MARGIN)
-        );
+        int height = this.getHeight();
+        if (height > 0) {
+            float scale = (float)this.getHeight() /
+                (Window.NORMAL_HEIGHT + Window.MARGIN);
+            this.camera.getTranslation().set(
+                (Window.HALF_WIDTH + Window.MARGIN / 2) * scale,
+                (Window.HALF_HEIGHT + Window.MARGIN / 2) * scale
+            );
+            this.camera.setScale(scale);
+        }
         this.repaint();
     }
 
@@ -115,16 +123,15 @@ public class Window extends JPanel
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!(g instanceof Graphics2D)) return;
-        Renderer r = new Renderer((Graphics2D) g);
+        Renderer r = new Renderer(
+            (Graphics2D) g,
+            this.selected,
+            this.selectedPoint
+        );
         r.push(this.camera);
         if (this.layout != null) {
             Leaf root = (Leaf)this.layout.getRoot();
-            if (root instanceof ShapeLeaf) {
-                ((ShapeLeaf)root).setHighlight(this.selectedPoint);
-            }
-            if (root != null) {
-                root.render(r);
-            }
+            if (root != null) root.render(r);
         }
         g.setColor(Color.BLACK);
         Point corner = new Point(
@@ -155,7 +162,7 @@ public class Window extends JPanel
         this.mouse.set(e.getX(), e.getY());
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.layout == null) return;
-            Point pos = this.camera.out(this.mouse);
+            Point pos = this.camera.in(this.mouse);
             this.selected = this.layout.getLeafByPosition(pos);
             this.selectedPoint = null;
             if (this.selected instanceof ShapeLeaf) {

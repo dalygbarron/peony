@@ -156,11 +156,9 @@ public class App {
         // Selecting a leaf in the list.
         view.addLeafTreeListener((TreeSelectionEvent event) -> {
             Leaf leaf = view.getSelectedLeaf();
-            if (leaf != null) {
-                model.setSelectedLeaf(leaf);
-                view.setLeaf(leaf);
-                view.getWindow().repaint();
-            }
+            model.setSelectedLeaf(leaf);
+            view.setLeaf(leaf);
+            view.getWindow().repaint();
         });
         // Selecting a layout in the map list.
         view.addMapTreeListener((TreeSelectionEvent event) -> {

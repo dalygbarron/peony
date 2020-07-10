@@ -73,6 +73,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
 
     @Override
     public void render(Renderer r) {
+        this.normalColour(r);
         /*
         if (this.image != null) {
             AffineTransform tx = AffineTransform.getRotateInstance(

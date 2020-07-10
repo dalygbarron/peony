@@ -43,6 +43,7 @@ public class PointLeaf extends Leaf {
         Point left = new Point(-PointLeaf.POINT_SIZE, 0);
         Point right = new Point(PointLeaf.POINT_SIZE, 0);
         r.push(this.getTransformation());
+        this.normalColour(r);
         r.drawText(Point.ORIGIN, this.getName());
         r.drawLine(top, bottom);
         r.drawLine(left, right);

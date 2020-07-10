@@ -112,4 +112,14 @@ public class Transformation implements Artefact {
         // TODO: this.
         return null;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+            "(%s, %f, %f)",
+            this.translation,
+            this.rotation,
+            this.scale
+        );
+    }
 }

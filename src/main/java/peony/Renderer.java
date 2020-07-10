@@ -11,13 +11,37 @@ import java.util.Deque;
 public class Renderer {
     private final Deque<Transformation> transformations = new ArrayDeque<>();
     private final Graphics2D g;
+    private final Leaf selectedLeaf;
+    private final Point selectedPoint;
 
     /**
      * Creates the renderer with the graphics object it will use internally.
-     * @param g is the graphics object to render with.
+     * @param g             is the graphics object to render with.
+     * @param selectedLeaf  is the leaf that is selected if any.
+     * @param selectedPoint is the point that is selected if any.
      */
-    public Renderer(Graphics2D g) {
+    public Renderer(Graphics2D g, Leaf selectedLeaf, Point selectedPoint) {
         this.g = g;
+        this.selectedLeaf = selectedLeaf;
+        this.selectedPoint = selectedPoint;
+    }
+
+    /**
+     * Tells you if a leaf is the selected leaf.
+     * @param selected is the leaf to check.
+     * @return true iff the given leaf is selected.
+     */
+    public boolean isLeafSelected(Leaf selected) {
+        return this.selectedLeaf == selected;
+    }
+
+    /**
+     * Tells you if a point is the selected point.
+     * @param selected is the point that is selected.
+     * @return true iff the given point is selected.
+     */
+    public boolean isPointSelected(Point selected) {
+        return this.selectedPoint == selected;
     }
 
     /**

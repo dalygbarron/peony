@@ -16,7 +16,6 @@ public class ShapeLeaf extends Leaf {
     public static final int POINT_RADIUS = 5;
     public static final int MIN_POINTS = 3;
     private final List<Point> points = new ArrayList<>();
-    private int highlight = -1;
 
     /**
      * Creates a default shape.
@@ -94,14 +93,6 @@ public class ShapeLeaf extends Leaf {
     }
 
     /**
-     * Sets a node to be highlighted when rendering.
-     * @param point is the node and preceding edge to highlight.
-     */
-    public void setHighlight(Point point) {
-        this.highlight =  this.points.indexOf(point);
-    }
-
-    /**
      * Moves all the nodes then moves the leaf itself so it's nodes are in
      * the same spot but the centre of the leaf is in the middle of the nodes.
      */
@@ -157,11 +148,12 @@ public class ShapeLeaf extends Leaf {
             Point next = this.points.get(
                 i == this.points.size() - 1 ? 0 : i + 1
             );
-            if ((i == 0 && this.highlight != 0) || i == this.highlight + 1) {
-                // TODO: selected replacement
-                r.setColour(false ? Color.BLUE : Color.BLACK);
-            } else if (i == this.highlight) {
+            if (r.isPointSelected(point)) {
                 r.setColour(Color.GREEN);
+            } else if (r.isLeafSelected(this)) {
+                r.setColour(Color.BLUE);
+            } else {
+                r.setColour(Color.BLACK);
             }
             r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
             r.drawLine(point, next);

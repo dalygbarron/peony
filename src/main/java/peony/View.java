@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -258,11 +259,11 @@ public class View extends JFrame implements WindowListener {
     public void setLeaf(Leaf leaf) {
         this.window.setSelected(leaf);
         TreePath path = this.leafTree.getSelectionPath();
-        Leaf current = (Leaf)this.leafTree
-            .getSelectionPath()
-            .getLastPathComponent();
-        if (leaf != null && leaf != current) {
-            this.leafTree.setSelectionPath(leaf.getLineage());
+        if (path != null) {
+            Leaf current = (Leaf)path.getLastPathComponent();
+            if (leaf != null && leaf != current) {
+                this.leafTree.setSelectionPath(leaf.getLineage());
+            }
         }
         if (leaf == null) {
             this.leafTree.clearSelection();

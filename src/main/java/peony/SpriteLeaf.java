@@ -35,6 +35,7 @@ public class SpriteLeaf extends Leaf {
 
     @Override
     public void render(Renderer r) {
+        this.normalColour(r);
         // TODO: something.
     }
 

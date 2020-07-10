@@ -95,8 +95,8 @@ public abstract class Leaf implements Artefact {
     public void addChild(Leaf child) {
         String test = child.getName();
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            test = String.format("%s%d", child.getName(), i);
             if (this.getChildByName(test) == null) break;
+            test = String.format("%s%d", child.getName(), i);
         }
         child.setName(test);
         this.children.add(child);
@@ -124,6 +124,7 @@ public abstract class Leaf implements Artefact {
      * @return the lowest node fulfilling these conditions.
      */
     public Leaf hit(Point point) {
+        System.out.println(point);
         Point t = this.transformation.in(point);
         for (Leaf child: this.children) {
             Leaf found = child.hit(t);
@@ -131,6 +132,14 @@ public abstract class Leaf implements Artefact {
         }
         if (this.insideLocal(t)) return this;
         return null;
+    }
+
+    /**
+     * Makes the renderer start drawingin the normal selected or not colours.
+     * @param r is the renderer to make start doing that.
+     */
+    public void normalColour(Renderer r) {
+        r.setColour(r.isLeafSelected(this) ? Color.BLUE : Color.BLACK);
     }
 
     /**
