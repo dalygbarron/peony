@@ -5,8 +5,6 @@ import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +17,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     public static final int SELECT_RADIUS = 16;
     private File file;
     private Image image;
-    private Point middle = new Point();
+    private final Rectangle dimensions = new Rectangle();
 
     /**
      * Default constructor.
@@ -42,10 +40,11 @@ public class ImageLeaf extends Leaf implements ImageObserver {
             this.image = null;
             return;
         }
-        int width = this.image.getWidth(this);
-        int height = this.image.getHeight(this);
-        if (width != -1) this.middle.setX((float)width / 2);
-        if (height != -1) this.middle.setY((float)height / 2);
+        float width = this.image.getWidth(this);
+        float height = this.image.getHeight(this);
+        if (width == -1) width = this.dimensions.getSize().getX();
+        if (height == -1) height = this.dimensions.getSize().getY();
+        this.dimensions.set(new Point(width, height));
     }
 
     /**
@@ -67,25 +66,15 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     @Override
     public boolean insideLocal(Point point) {
         if (this.image == null) return point.length() < ImageLeaf.SELECT_RADIUS;
-        return point.getX() >= 0 && point.getX() < this.middle.getX() * 2 &&
-            point.getY() >= 0 && point.getY() < this.middle.getY() * 2;
+            return this.dimensions.contains(point);
     }
 
     @Override
     public void renderParticular(Renderer r) {
         this.normalColour(r);
-        /*
         if (this.image != null) {
-            AffineTransform tx = AffineTransform.getRotateInstance(
-                this.getTransformation().getRotation(),
-                pos.getX(),
-                pos.getY()
-            );
-            tx.translate(pos.getX(), pos.getY());
-            tx.scale(scale, scale);
-            ((Graphics2D)g).drawImage(this.image, tx, null);
+            r.drawImage(this.image, this.dimensions);
         }
-         */
     }
 
     @Override
@@ -111,12 +100,15 @@ public class ImageLeaf extends Leaf implements ImageObserver {
         int width,
         int height
     ) {
+        float newWidth = this.dimensions.getSize().getX();
+        float newHeight = this.dimensions.getSize().getY();
         if ((infoflags & ImageObserver.WIDTH) != 0) {
-            this.middle.setX((float)width / 2);
+            newWidth = width;
         }
         if ((infoflags & ImageObserver.HEIGHT) != 0) {
-            this.middle.setY((float)height / 2);
+            newHeight = height;
         }
+        this.dimensions.set(new Point(newWidth, newHeight));
         return false;
     }
 }

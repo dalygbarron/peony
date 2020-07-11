@@ -1,6 +1,7 @@
 package peony;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -133,6 +134,27 @@ public class Renderer {
             (int)(radius * 2),
             (int)(radius * 2)
         );
+    }
+
+    /**
+     * Draws a pic at origin.
+     * @param image is the pic.
+     * @param dimensions is the rectangle defining where it should be fitted.
+     */
+    public void drawImage(Image image, Rectangle dimensions) {
+        int width = image.getWidth(null);
+        Point t = this.transform(dimensions.getPos());
+        Point corner = this.transform(dimensions.getTopRightCorner());
+        corner.subtract(t);
+        AffineTransform tx = AffineTransform.getRotateInstance(
+            corner.angle(),
+            t.getX(),
+            t.getY()
+        );
+        tx.translate(t.getX(), t.getY());
+        float scale = corner.length() / width;
+        tx.scale(scale, scale);
+        this.g.drawImage(image, tx, null);
     }
 
     /**
