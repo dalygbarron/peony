@@ -8,6 +8,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -248,10 +249,10 @@ public class Layout implements Artefact, TreeModel {
     }
 
     @Override
-    public JSONObject toJson() {
-        JSONObject root = this.root.toJson();
+    public JSONObject toJson(Path path) {
+        JSONObject root = this.root.toJson(path);
         JSONArray children = new JSONArray();
-        for (Layout child: this.getChildren()) children.put(child.toJson());
+        for (Layout child: this.getChildren()) children.put(child.toJson(path));
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("root", root);

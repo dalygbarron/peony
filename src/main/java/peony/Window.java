@@ -145,10 +145,10 @@ public class Window extends JPanel
         if (this.layout != null) {
             r.drawText(corner, layout.getFullName());
         }
-        r.drawRectangle(
+        r.drawRectangle(new Rectangle(
             corner,
             new Point(Window.NORMAL_WIDTH, Window.NORMAL_HEIGHT)
-        );
+        ));
     }
 
     @Override

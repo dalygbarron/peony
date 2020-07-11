@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,11 +179,11 @@ public class ShapeLeaf extends Leaf {
     }
 
     @Override
-    public JSONObject toJson() {
-        JSONObject json = super.toJson();
+    public JSONObject toJson(Path path) {
+        JSONObject json = super.toJson(path);
         json.put("type", ShapeLeaf.TITLE);
         JSONArray pointList = new JSONArray();
-        for (Point point: this.points) pointList.put(point.toJson());
+        for (Point point: this.points) pointList.put(point.toJson(path));
         json.put("points", pointList);
         return json;
     }

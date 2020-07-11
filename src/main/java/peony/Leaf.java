@@ -1,11 +1,12 @@
 package peony;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.swing.tree.TreePath;
 import java.awt.Color;
-import java.awt.Graphics;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -255,10 +256,13 @@ public abstract class Leaf implements Artefact {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson(Path root) {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
-        json.put("transformation", this.transformation.toJson());
+        json.put("transformation", this.transformation.toJson(root));
+        JSONArray children = new JSONArray();
+        for (Leaf child: this.children) children.put(child.toJson(root));
+        json.put("children", children);
         return json;
     }
 

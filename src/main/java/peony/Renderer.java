@@ -107,14 +107,17 @@ public class Renderer {
 
     /**
      * Draws a rectangle.
-     * @param pos is the position in the current coordinates of the renderer.
-     * @param size is the width and height of the rectangle.
+     * @param rectangle is the rectangle to draw.
      */
-    public void drawRectangle(Point pos, Point size) {
-        Point tl = this.transform(pos);
-        Point tr = this.transform(pos.plus(new Point(size.getX(), 0)));
-        Point br = this.transform(pos.plus(size));
-        Point bl = this.transform(pos.plus(new Point(0, size.getY())));
+    public void drawRectangle(Rectangle rectangle) {
+        Point tl = this.transform(rectangle.getPos());
+        Point tr = this.transform(
+            rectangle.getPos().plus(new Point(rectangle.getSize().getX(), 0))
+        );
+        Point br = this.transform(rectangle.getPos().plus(rectangle.getSize()));
+        Point bl = this.transform(
+            rectangle.getPos().plus(new Point(0, rectangle.getSize().getY()))
+        );
         g.drawLine(tl.getXi(), tl.getYi(), tr.getXi(), tr.getYi());
         g.drawLine(tr.getXi(), tr.getYi(), br.getXi(), br.getYi());
         g.drawLine(br.getXi(), br.getYi(), bl.getXi(), bl.getYi());

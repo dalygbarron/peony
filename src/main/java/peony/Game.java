@@ -7,6 +7,7 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -180,12 +181,12 @@ public class Game implements Artefact, TreeModel {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson(Path root) {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("version", this.version);
         // TODO: texture atlas and options.
-        json.put("layout", this.firstLayout.toJson());
+        json.put("layout", this.firstLayout.toJson(root));
         return json;
     }
 

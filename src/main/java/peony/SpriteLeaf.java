@@ -3,6 +3,7 @@ package peony;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.nio.file.Path;
 
 /**
  * A leaf that displays a sprite from the game's spritesheet.
@@ -45,8 +46,8 @@ public class SpriteLeaf extends Leaf {
     }
 
     @Override
-    public JSONObject toJson() {
-        JSONObject json = super.toJson();
+    public JSONObject toJson(Path path) {
+        JSONObject json = super.toJson(path);
         json.put("type", SpriteLeaf.TITLE);
         // TODO: other sprite stuff.
         return json;

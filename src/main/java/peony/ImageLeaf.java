@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * A leaf that consists of a whole image file.
@@ -75,6 +76,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
         if (this.image != null) {
             r.drawImage(this.image, this.dimensions);
         }
+        if (r.isLeafSelected(this)) r.drawRectangle(this.dimensions);
     }
 
     @Override
@@ -84,10 +86,12 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     }
 
     @Override
-    public JSONObject toJson() {
-        JSONObject json = super.toJson();
+    public JSONObject toJson(Path root) {
+        Path imagePath = this.file.toPath();
+        Path relative = root.getParent().relativize(imagePath);
+        JSONObject json = super.toJson(root);
         json.put("type", ImageLeaf.TITLE);
-        json.put("file", this.file.toString());
+        json.put("file", relative.toString());
         return json;
     }
 

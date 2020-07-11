@@ -3,6 +3,8 @@ package peony;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.file.Path;
+
 /**
  * Represents a point or vector or whatever in 2d space.
  */
@@ -215,7 +217,7 @@ public class Point implements Artefact {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson(Path path) {
         JSONObject json = new JSONObject();
         json.put("x", this.x);
         json.put("y", this.y);

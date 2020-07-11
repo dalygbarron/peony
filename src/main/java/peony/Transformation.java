@@ -2,6 +2,8 @@ package peony;
 
 import org.json.JSONObject;
 
+import java.nio.file.Path;
+
 /**
  * Represents a transformation into or out of a coordinate space.
  */
@@ -118,7 +120,7 @@ public class Transformation implements Artefact {
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson(Path path) {
         // TODO: this.
         return null;
     }

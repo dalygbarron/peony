@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * The state of the data we are actually meant to be modifying with this here
@@ -103,9 +104,10 @@ public class Model {
      */
     public Result<Void> save() {
         if (this.file == null) return Result.fail("There is no game file.");
+        Path root = this.file.toPath();
         try {
             FileWriter writer = new FileWriter(this.file);
-            writer.write(this.game.toJson().toString());
+            writer.write(this.game.toJson(root).toString());
             writer.close();
         } catch (IOException e) {
             return Result.fail(e.getMessage());

@@ -3,6 +3,7 @@ package peony;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.nio.file.Path;
 
 /**
  * A leaf that is actually just a point. It can still be transformed and shiet
@@ -53,8 +54,8 @@ public class PointLeaf extends Leaf {
     }
 
     @Override
-    public JSONObject toJson() {
-        JSONObject json = super.toJson();
+    public JSONObject toJson(Path path) {
+        JSONObject json = super.toJson(path);
         json.put("type", PointLeaf.TITLE);
         return json;
     }
