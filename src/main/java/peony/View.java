@@ -267,7 +267,15 @@ public class View extends JFrame {
             this.leafSpritePropertiesPanel.setVisible(false);
             this.leafShapePropertiesPanel.setVisible(false);
         } else {
-            this.leafTree.setSelectionPath(leaf.getLineage());
+            TreePath path = this.leafTree.getSelectionPath();
+            if (path != null) {
+                Leaf current = (Leaf)path.getLastPathComponent();
+                if (leaf != current) {
+                    this.leafTree.setSelectionPath(leaf.getLineage());
+                }
+            } else {
+                this.leafTree.setSelectionPath(leaf.getLineage());
+            }
             this.setPosition(leaf.getTransformation().getTranslation());
             this.setScale(leaf.getTransformation().getScale());
             this.setRotation(leaf.getTransformation().getRotation());
@@ -300,8 +308,8 @@ public class View extends JFrame {
      * @param layout is the layout selected.
      */
     public void setLayout(Layout layout) {
-        this.leafTree.setTransferHandler(new LeafTransferHandler(layout));
         this.leafTree.setModel(layout);
+        this.leafTree.setTransferHandler(new LeafTransferHandler(layout));
         this.window.setLayout(layout);
     }
 

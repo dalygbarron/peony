@@ -94,11 +94,12 @@ public abstract class Leaf implements Artefact {
      */
     public void addChild(Leaf child) {
         String test = child.getName();
-        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+        for (int i = 1; i < Integer.MAX_VALUE; i++) {
             if (this.getChildByName(test) == null) break;
             test = String.format("%s%d", child.getName(), i);
         }
         child.setName(test);
+        child.setParent(this);
         this.children.add(child);
     }
 
@@ -124,7 +125,6 @@ public abstract class Leaf implements Artefact {
      * @return the lowest node fulfilling these conditions.
      */
     public Leaf hit(Point point) {
-        System.out.println(point);
         Point t = this.transformation.in(point);
         for (Leaf child: this.children) {
             Leaf found = child.hit(t);
