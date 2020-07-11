@@ -53,20 +53,6 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
-     * Gives you the leaf's global transformation, as in all of the
-     * transformations of it's parents are bundled into one.
-     * @return the full global transformation.
-     */
-    public Transformation getGlobalTransformation() {
-        if (this.parent != null) {
-            Transformation t = this.parent.getGlobalTransformation();
-            t.merge(this.transformation);
-            return t;
-        }
-        return new Transformation(this.transformation);
-    }
-
-    /**
      * Gives you the leaf's parent.
      * @return the parent if any.
      */
@@ -133,19 +119,33 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
+     * Takes a point from the world space and converts it into this leaf's
+     * coordinate space by getting all of this leaf's ancestors to transform
+     * it in sequence.
+     * @param in is the world space point which is not harmed in this process.
+     * @return the leaf space point.
+     */
+    public Point globalToLocal(Point in) {
+        if (this.parent != null) {
+            return this.transformation.in(this.parent.globalToLocal(in));
+        }
+        return this.transformation.in(in);
+    }
+
+    /**
      * Tells you if this leaf or a child of it contains the given point,
      * favouring leaves that are lower in the heirachy.
      * @param point is the point to look at.
      * @return the lowest node fulfilling these conditions.
      */
-    public Leaf hit(Point point) {
+    public Pair<Leaf, Point> hit(Point point) {
         Point t = this.transformation.in(point);
         for (Leaf child: this.children) {
-            Leaf found = child.hit(t);
-            if (found != null) return found;
+            Pair<Leaf, Point> found = child.hit(t);
+            if (found.getA() != null) return found;
         }
-        if (this.insideLocal(t)) return this;
-        return null;
+        if (this.insideLocal(t)) return new Pair<>(this, null);
+        return new Pair<>(null, null);
     }
 
     /**

@@ -167,13 +167,9 @@ public class Window extends JPanel
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (this.layout == null) return;
             Point pos = this.camera.in(this.mouse);
-            this.selected = this.layout.getLeafByPosition(pos);
-            this.selectedPoint = null;
-            if (this.selected instanceof ShapeLeaf) {
-                this.selectedPoint = ((ShapeLeaf)this.selected)
-                    .getPointByPosition(pos);
-                System.out.println(this.selectedPoint);
-            }
+            Pair<Leaf, Point> hit = ((Leaf)this.layout.getRoot()).hit(pos);
+            this.selected = hit.getA();
+            this.selectedPoint = hit.getB();
             this.repaint();
             this.fireEvent(this.selected);
         }
@@ -199,11 +195,14 @@ public class Window extends JPanel
         Point newMouse = new Point(e.getX(), e.getY());
         if (e.getButton() == MouseEvent.BUTTON1 && this.selected != null) {
             Transformation t = new Transformation(this.camera);
-            if (this.selected.getParent() != null) {
-                t.merge(this.selected.getParent().getGlobalTransformation());
-            }
+            Leaf transformer = this.selectedPoint != null ?
+                this.selected : this.selected.getParent();
             Point tMouse = t.in(this.mouse);
             Point tNewMouse = t.in(newMouse);
+            if (transformer != null) {
+                tMouse = transformer.globalToLocal(tMouse);
+                tNewMouse = transformer.globalToLocal(tNewMouse);
+            }
             Point delta = tNewMouse.minus(tMouse);
             if (this.selectedPoint != null) {
                 selectedPoint.add(delta);

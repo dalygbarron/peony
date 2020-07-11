@@ -33,13 +33,13 @@ public class ShapeLeaf extends Leaf {
 
     /**
      * Gives you a point in the shape that the given location hits if any.
-     * @param pos the position to look at.
+     * @param pos the position to look at which should be in our coordinate
+     *            space.
      * @return the found point if any.
      */
     public Point getPointByPosition(Point pos) {
-        Point local = this.getGlobalTransformation().in(pos);
         for (Point point: this.points) {
-            if (point.minus(local).length() <= ShapeLeaf.POINT_RADIUS) {
+            if (point.minus(pos).length() <= ShapeLeaf.POINT_RADIUS) {
                 return point;
             }
         }
@@ -116,6 +116,19 @@ public class ShapeLeaf extends Leaf {
     public static Result<Leaf> fromJson(JSONObject json) {
         // TODO: stuff.
         return Result.ok(new ShapeLeaf());
+    }
+
+    @Override
+    public Pair<Leaf, Point> hit(Point point) {
+        Point t = this.getTransformation().in(point);
+        for (Leaf child: this.getChildren()) {
+            Pair<Leaf, Point> found = child.hit(t);
+            if (found.getA() != null) return found;
+        }
+        if (this.insideLocal(t)) {
+            return new Pair<>(this, this.getPointByPosition(t));
+        }
+        return new Pair<>(null, null);
     }
 
     @Override

@@ -56,16 +56,6 @@ public class Layout implements Artefact, TreeModel {
     }
 
     /**
-     * Finds the highest priority leaf if any that the given position falls
-     * within.
-     * @param pos is the position that must fall within the found leaf.
-     * @return the leaf if found or null.
-     */
-    public Leaf getLeafByPosition(Point pos) {
-        return this.root.hit(pos);
-    }
-
-    /**
      * Gives you the name of the layout.
      * @return the name.
      */
