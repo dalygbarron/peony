@@ -211,10 +211,9 @@ public class Window extends JPanel
             }
             this.repaint();
         } else if (e.getButton() == MouseEvent.BUTTON3) {
-            Point delta = newMouse
-                .minus(this.mouse)
-                .times(1 / this.camera.getScale());
-            this.camera.getTranslation().add(delta);this.repaint();
+            this.camera.getTranslation().add(newMouse);
+            this.camera.getTranslation().subtract(mouse);
+            this.repaint();
         }
         this.mouse.set(newMouse);
     }

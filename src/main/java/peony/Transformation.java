@@ -82,18 +82,6 @@ public class Transformation implements Artefact {
     }
 
     /**
-     * Combines this transformation with another such that this one goes
-     * first kind of thing. Actually the order is irrelevant I realise based
-     * on the mathematical operations involved.
-     * @param other
-     */
-    public void merge(Transformation other) {
-        this.translation.add(other.translation);
-        this.rotation += other.rotation;
-        this.scale *= other.scale;
-    }
-
-    /**
      * Takes a point outside of this coordinate space and converts into it.
      * @param point is the point to convert which is not affected.
      * @return the version inside this coordinate space.
