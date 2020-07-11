@@ -201,6 +201,7 @@ public class App {
         // Window selecting a leaf.
         view.getWindow().addListener((Window window, Leaf leaf) -> {
             model.setSelectedLeaf(leaf);
+            view.setLeaf(leaf);
         });
     	view.setVisible(true);
     }

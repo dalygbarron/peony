@@ -19,7 +19,7 @@ import java.util.Enumeration;
 /**
  * Manages the program's user interface.
  */
-public class View extends JFrame implements WindowListener {
+public class View extends JFrame {
     private final PigTree leafTree = new PigTree();
     private final PigTree mapTree = new PigTree();
     private final JSplitPane verticalSplit;
@@ -68,7 +68,6 @@ public class View extends JFrame implements WindowListener {
         this.script.setSyntaxEditingStyle(
             SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
         );
-        this.window.addListener(this);
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(this.loadButton);
@@ -258,13 +257,6 @@ public class View extends JFrame implements WindowListener {
      */
     public void setLeaf(Leaf leaf) {
         this.window.setSelected(leaf);
-        TreePath path = this.leafTree.getSelectionPath();
-        if (path != null) {
-            Leaf current = (Leaf)path.getLastPathComponent();
-            if (leaf != null && leaf != current) {
-                this.leafTree.setSelectionPath(leaf.getLineage());
-            }
-        }
         if (leaf == null) {
             this.leafTree.clearSelection();
             this.setPosition(new Point());
@@ -275,6 +267,7 @@ public class View extends JFrame implements WindowListener {
             this.leafSpritePropertiesPanel.setVisible(false);
             this.leafShapePropertiesPanel.setVisible(false);
         } else {
+            this.leafTree.setSelectionPath(leaf.getLineage());
             this.setPosition(leaf.getTransformation().getTranslation());
             this.setScale(leaf.getTransformation().getScale());
             this.setRotation(leaf.getTransformation().getRotation());
@@ -572,10 +565,5 @@ public class View extends JFrame implements WindowListener {
      */
     private static SpinnerNumberModel makeRotationModel() {
         return new SpinnerNumberModel(0, -Math.PI, Math.PI, 0.3);
-    }
-
-    @Override
-    public void leafSelected(Window window, Leaf leaf) {
-        this.setLeaf(leaf);
     }
 }
