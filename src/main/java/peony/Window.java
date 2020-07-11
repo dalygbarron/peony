@@ -5,13 +5,16 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 
 /**
  * Displays the visualisation of the current layout and lets you interact
  * with it to move stuff and all that.
  */
 public class Window extends JPanel
-    implements MouseListener, MouseWheelListener, MouseMotionListener
+    implements MouseListener, MouseWheelListener, MouseMotionListener,
+    TreeModelListener
 {
     public static final int NORMAL_WIDTH = 640;
     public static final int NORMAL_HEIGHT = 640;
@@ -53,6 +56,7 @@ public class Window extends JPanel
             );
             this.camera.setScale(scale);
         }
+        layout.addTreeModelListener(this);
         this.repaint();
     }
 
@@ -168,6 +172,7 @@ public class Window extends JPanel
             if (this.selected instanceof ShapeLeaf) {
                 this.selectedPoint = ((ShapeLeaf)this.selected)
                     .getPointByPosition(pos);
+                System.out.println(this.selectedPoint);
             }
             this.repaint();
             this.fireEvent(this.selected);
@@ -192,24 +197,27 @@ public class Window extends JPanel
     @Override
     public void mouseDragged(MouseEvent e) {
         Point newMouse = new Point(e.getX(), e.getY());
-        Point delta = this.mouse.minus(newMouse);
-        this.mouse.set(newMouse);
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            if (this.selectedPoint != null) {
-                selectedPoint.subtract(delta.times(1 / this.camera.getScale()));
-                this.repaint();
-            } else if (this.selected != null) {
-                selected.getTransformation()
-                    .getTranslation()
-                    .subtract(delta.times(1 / this.camera.getScale()));
-                this.repaint();
+        if (e.getButton() == MouseEvent.BUTTON1 && this.selected != null) {
+            Transformation t = new Transformation(this.camera);
+            if (this.selected.getParent() != null) {
+                t.merge(this.selected.getParent().getGlobalTransformation());
             }
-        } else if (e.getButton() == MouseEvent.BUTTON3) {
-            this.camera
-                .getTranslation()
-                .subtract(delta);
+            Point tMouse = t.in(this.mouse);
+            Point tNewMouse = t.in(newMouse);
+            Point delta = tNewMouse.minus(tMouse);
+            if (this.selectedPoint != null) {
+                selectedPoint.add(delta);
+            } else {
+                selected.getTransformation().getTranslation().add(delta);
+            }
             this.repaint();
+        } else if (e.getButton() == MouseEvent.BUTTON3) {
+            Point delta = newMouse
+                .minus(this.mouse)
+                .times(1 / this.camera.getScale());
+            this.camera.getTranslation().add(delta);this.repaint();
         }
+        this.mouse.set(newMouse);
     }
 
     @Override
@@ -227,6 +235,26 @@ public class Window extends JPanel
         if (this.camera.getScale() < Window.MIN_ZOOM) {
             this.camera.setScale(Window.MIN_ZOOM);
         }
+        this.repaint();
+    }
+
+    @Override
+    public void treeNodesChanged(TreeModelEvent e) {
+        this.repaint();
+    }
+
+    @Override
+    public void treeNodesInserted(TreeModelEvent e) {
+        this.repaint();
+    }
+
+    @Override
+    public void treeNodesRemoved(TreeModelEvent e) {
+        this.repaint();
+    }
+
+    @Override
+    public void treeStructureChanged(TreeModelEvent e) {
         this.repaint();
     }
 }

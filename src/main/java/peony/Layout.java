@@ -303,7 +303,6 @@ public class Layout implements Artefact, TreeModel {
     @Override
     public int getIndexOfChild(Object parent, Object child) {
         int index =  ((Leaf)parent).getChildren().indexOf(child);
-        System.out.println(index);
         return index;
     }
 

@@ -32,6 +32,16 @@ public class Transformation implements Artefact {
     }
 
     /**
+     * Copy constructor.
+     * @param transformation is the one to copy.
+     */
+    public Transformation(Transformation transformation) {
+        this.translation = new Point(transformation.translation);
+        this.rotation = transformation.rotation;
+        this.scale = transformation.scale;
+    }
+
+    /**
      * Gives you access to the translation.
      * @return the translation.
      */
@@ -69,6 +79,18 @@ public class Transformation implements Artefact {
      */
     public void setScale(float scale) {
         this.scale = scale;
+    }
+
+    /**
+     * Combines this transformation with another such that this one goes
+     * first kind of thing. Actually the order is irrelevant I realise based
+     * on the mathematical operations involved.
+     * @param other
+     */
+    public void merge(Transformation other) {
+        this.translation.add(other.translation);
+        this.rotation += other.rotation;
+        this.scale *= other.scale;
     }
 
     /**

@@ -53,6 +53,20 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
+     * Gives you the leaf's global transformation, as in all of the
+     * transformations of it's parents are bundled into one.
+     * @return the full global transformation.
+     */
+    public Transformation getGlobalTransformation() {
+        if (this.parent != null) {
+            Transformation t = this.parent.getGlobalTransformation();
+            t.merge(this.transformation);
+            return t;
+        }
+        return new Transformation(this.transformation);
+    }
+
+    /**
      * Gives you the leaf's parent.
      * @return the parent if any.
      */
@@ -143,6 +157,31 @@ public abstract class Leaf implements Artefact {
     }
 
     /**
+     * Does generic rendering stuff that all leaves do.
+     * @param r is the renderer to use.
+     */
+    public final void render(Renderer r) {
+        r.push(this.transformation);
+        this.renderParticular(r);
+        this.normalColour(r);
+        r.drawText(Point.ORIGIN, this.name);
+        for (Leaf child: this.children) {
+            r.drawDottedLine(
+                Point.ORIGIN,
+                child.getTransformation().getTranslation()
+            );
+        }
+        for (Leaf child: this.children) child.render(r);
+        r.pop();
+    }
+
+    /**
+     * Does the rendering stuff that is unique to a certain type of leaf.
+     * @param r is the renderer.
+     */
+    public abstract void renderParticular(Renderer r);
+
+    /**
      * Takes a point in the coordinate system of this leaf (scaled, rotated and
      * moved such that this leaf is unrotated, unscaled, and at the centre of
      * the universe), and tells you if that point is inside this leaf.
@@ -150,12 +189,6 @@ public abstract class Leaf implements Artefact {
      * @return true if it's inside and false otherwise.
      */
     public abstract boolean insideLocal(Point point);
-
-    /**
-     * Draws this leaf onto the screen.
-     * @param r is the renderer to use.
-     */
-    public abstract void render(Renderer r);
 
     /**
      * Gives you the root part of the default name this leaf should have. The

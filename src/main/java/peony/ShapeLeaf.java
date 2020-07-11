@@ -37,7 +37,7 @@ public class ShapeLeaf extends Leaf {
      * @return the found point if any.
      */
     public Point getPointByPosition(Point pos) {
-        Point local = this.getTransformation().in(pos);
+        Point local = this.getGlobalTransformation().in(pos);
         for (Point point: this.points) {
             if (point.minus(local).length() <= ShapeLeaf.POINT_RADIUS) {
                 return point;
@@ -141,8 +141,7 @@ public class ShapeLeaf extends Leaf {
     }
 
     @Override
-    public void render(Renderer r) {
-        r.push(this.getTransformation());
+    public void renderParticular(Renderer r) {
         for (int i = 0; i < this.points.size(); i++) {
             Point point = this.points.get(i);
             Point next = this.points.get(
@@ -158,8 +157,6 @@ public class ShapeLeaf extends Leaf {
             r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
             r.drawLine(point, next);
         }
-        for (Leaf child: this.getChildren()) child.render(r);
-        r.pop();
     }
 
     @Override

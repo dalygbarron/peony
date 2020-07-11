@@ -310,6 +310,7 @@ public class View extends JFrame {
     public void setLayout(Layout layout) {
         this.leafTree.setModel(layout);
         this.leafTree.setTransferHandler(new LeafTransferHandler(layout));
+        this.leafTree.revalidate();
         this.window.setLayout(layout);
     }
 

@@ -37,18 +37,14 @@ public class PointLeaf extends Leaf {
     }
 
     @Override
-    public void render(Renderer r) {
+    public void renderParticular(Renderer r) {
         Point top = new Point(0, -PointLeaf.POINT_SIZE);
         Point bottom = new Point(0, PointLeaf.POINT_SIZE);
         Point left = new Point(-PointLeaf.POINT_SIZE, 0);
         Point right = new Point(PointLeaf.POINT_SIZE, 0);
-        r.push(this.getTransformation());
         this.normalColour(r);
-        r.drawText(Point.ORIGIN, this.getName());
         r.drawLine(top, bottom);
         r.drawLine(left, right);
-        for (Leaf child: this.getChildren()) child.render(r);
-        r.pop();
     }
 
     @Override

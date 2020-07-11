@@ -72,7 +72,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     }
 
     @Override
-    public void render(Renderer r) {
+    public void renderParticular(Renderer r) {
         this.normalColour(r);
         /*
         if (this.image != null) {

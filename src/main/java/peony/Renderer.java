@@ -9,6 +9,14 @@ import java.util.Deque;
  * functions use that by default.
  */
 public class Renderer {
+    private static final Stroke DASH = new BasicStroke(
+        1,
+        BasicStroke.CAP_BUTT,
+        BasicStroke.JOIN_BEVEL,
+        0,
+        new float[]{2},
+        0
+    );
     private final Deque<Transformation> transformations = new ArrayDeque<>();
     private final Graphics2D g;
     private final Leaf selectedLeaf;
@@ -81,7 +89,19 @@ public class Renderer {
     public void drawLine(Point a, Point b) {
         Point newA = this.transform(a);
         Point newB = this.transform(b);
-        g.drawLine(newA.getXi(), newA.getYi(), newB.getXi(), newB.getYi());
+        this.g.drawLine(newA.getXi(), newA.getYi(), newB.getXi(), newB.getYi());
+    }
+
+    /**
+     * Draws a dotted line which is nice.
+     * @param a is the start of the line.
+     * @param b is the end of the line.
+     */
+    public void drawDottedLine(Point a, Point b) {
+        Stroke old = this.g.getStroke();
+        this.g.setStroke(Renderer.DASH);
+        this.drawLine(a, b);
+        this.g.setStroke(old);
     }
 
     /**
