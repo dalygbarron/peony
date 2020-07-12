@@ -3,6 +3,7 @@ package peony;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -111,6 +112,10 @@ public class TextureAtlas {
      */
     public Collection<Region> getRegions() {
         return this.regions.values();
+    }
+
+    public static Result<Image> loadImage(Path root, Path file) {
+        root.
     }
 
     /**

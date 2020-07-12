@@ -53,7 +53,9 @@ public class SpriteLeaf extends Leaf {
     @Override
     public void renderParticular(Renderer r) {
         this.normalColour(r);
-        if (this.sprite != null) r.drawSprite(this.sprite);
+        if (this.sprite != null) {
+            r.drawImage(this.sprite.image, new Rectangle(new Point(200, 200)));
+        }
     }
 
     @Override
