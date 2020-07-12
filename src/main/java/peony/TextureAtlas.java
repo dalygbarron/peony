@@ -14,9 +14,21 @@ public class TextureAtlas {
      * compared to the libgdx version.
      */
     public static class Region implements Comparable<Region> {
-        public Image image;
-        public String name;
-        Rectangle dimensions = new Rectangle();
+        public final Rectangle dimensions = new Rectangle();
+        public final Image image;
+        public final String name;
+
+        /**
+         * Creates a region and sets the stuff that must be set.
+         * @param image is the image to do it with.
+         * @param name  is it's name.
+         */
+        public Region(Image image, String name, Point pos, Point size) {
+            this.image = image;
+            this.name = name;
+            this.dimensions.getPos().set(pos);
+            this.dimensions.getSize().set(size);
+        }
 
         @Override
         public String toString() {
@@ -60,20 +72,18 @@ public class TextureAtlas {
                 current = t.getImage(line);
                 images.add(current);
             } else {
-                Region region = new Region();
-                region.name = line;
-                region.image = current;
                 TextureAtlas.readValue(reader);
                 TextureAtlas.readTuple(reader);
-                region.dimensions.getPos().set(
+                Point pos = new Point(
                     Integer.parseInt(tuple[0]),
                     Integer.parseInt(tuple[1])
                 );
                 TextureAtlas.readTuple(reader);
-                region.dimensions.getSize().set(
+                Point size = new Point(
                     Integer.parseInt(tuple[0]),
                     Integer.parseInt(tuple[1])
                 );
+                Region region = new Region(current, line, pos, size);
                 this.regions.put(region.name, region);
                 if (TextureAtlas.readTuple(reader) == 4) {
                     if (TextureAtlas.readTuple(reader) == 4) {

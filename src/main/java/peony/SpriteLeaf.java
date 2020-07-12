@@ -53,7 +53,7 @@ public class SpriteLeaf extends Leaf {
     @Override
     public void renderParticular(Renderer r) {
         this.normalColour(r);
-        // TODO: something.
+        if (this.sprite != null) r.drawSprite(this.sprite);
     }
 
     @Override

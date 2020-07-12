@@ -145,7 +145,6 @@ public class Renderer {
      * @param dimensions is the rectangle defining where it should be fitted.
      */
     public void drawImage(Image image, Rectangle dimensions) {
-        int width = image.getWidth(null);
         Point t = this.transform(dimensions.getPos());
         Point corner = this.transform(dimensions.getTopRightCorner());
         corner.subtract(t);
@@ -155,9 +154,51 @@ public class Renderer {
             t.getY()
         );
         tx.translate(t.getX(), t.getY());
+        int width = image.getWidth(null);
         float scale = corner.length() / width;
         tx.scale(scale, scale);
         this.g.drawImage(image, tx, null);
+    }
+
+    /**
+     * Draws a sprite at origin.
+     * @param sprite is the sprite to draw.
+     */
+    public void drawSprite(TextureAtlas.Region sprite) {
+        Point t = this.transform(
+            Point.ORIGIN.minus(sprite.dimensions.getSize().times(0.5f))
+        );
+        Point corner = this.transform(new Point(
+            sprite.dimensions.getSize().getX() / 2,
+            0 - sprite.dimensions.getSize().getY() / 2
+        ));
+        corner.subtract(t);
+        AffineTransform tx = AffineTransform.getRotateInstance(
+            corner.angle(),
+            t.getX(),
+            t.getY()
+        );
+        tx.translate(t.getX(), t.getY());
+        AffineTransform oldTransform = this.g.getTransform();
+        //this.g.setTransform(tx);
+        System.out.println(sprite.image);
+        this.g.drawImage(sprite.image, tx, null);
+        /*
+        this.g.drawImage(
+            sprite.image,
+            0,
+            0,
+            sprite.dimensions.getSize().getXi(),
+            sprite.dimensions.getSize().getYi(),
+            sprite.dimensions.getPos().getXi(),
+            sprite.dimensions.getPos().getYi(),
+            sprite.dimensions.getPos().getXi() + sprite.dimensions.getSize().getXi(),
+            sprite.dimensions.getPos().getYi() + sprite.dimensions.getSize().getYi(),
+            null
+        );
+
+         */
+        //this.g.setTransform(oldTransform);
     }
 
     /**
