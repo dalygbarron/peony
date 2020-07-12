@@ -14,6 +14,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 
 /**
@@ -26,7 +29,6 @@ public class View extends JFrame {
     private final JFileChooser imageChooser = new JFileChooser();
     private final JFileChooser gameChooser = new JFileChooser();
     private final JFileChooser atlasChooser = new JFileChooser();
-    private final JDialog spriteChooser = new JDialog(this, "brexit", true);
     private final JPanel leafPropertiesPanel = new JPanel();
     private final JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
     private final JPanel leafImagePropertiesPanel = new JPanel(new GridLayout(0, 2));
@@ -107,9 +109,6 @@ public class View extends JFrame {
             "png"
         ));
         this.imageChooser.setAcceptAllFileFilterUsed(false);
-        this.sprite.addActionListener((ActionEvent event) -> {
-            this.spriteChooser.setVisible(true);
-        });
         JTabbedPane propertiesTabs = new JTabbedPane();
         this.leafPropertiesPanel.setLayout(
             new BoxLayout(leafPropertiesPanel, BoxLayout.Y_AXIS)
@@ -504,6 +503,14 @@ public class View extends JFrame {
     }
 
     /**
+     * adds a listener on the sprite select button.
+     * @param listener is the listener to add.
+     */
+    public void addSelectSpriteListener(ActionListener listener) {
+        this.sprite.addActionListener(listener);
+    }
+
+    /**
      * Adds a listener for mouse events on the window.
      * @param listener is the listener to add.
      */
@@ -588,6 +595,28 @@ public class View extends JFrame {
             return this.imageChooser.getSelectedFile();
         }
         return null;
+    }
+
+    /**
+     * Lets you select a sprite out of the texture atlas.
+     * @param atlas is the texture atlas containing the sprites you can choose.
+     * @return the chosen sprite if any.
+     */
+    public TextureAtlas.Region chooseSprite(TextureAtlas atlas) {
+        Collection<TextureAtlas.Region> spritesCollection = atlas.getRegions();
+        TextureAtlas.Region[] sprites = atlas.getRegions().toArray(
+            new TextureAtlas.Region[spritesCollection.size()]
+        );
+        Arrays.sort(sprites);
+        return (TextureAtlas.Region)JOptionPane.showInputDialog(
+            this,
+            "Choose the sprite",
+            "Sprites",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            sprites,
+            null
+        );
     }
 
     /**

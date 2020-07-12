@@ -77,4 +77,8 @@ public class Rectangle {
             pos.getY() < this.pos.getY() + this.size.getY();
     }
 
+    @Override
+    public String toString() {
+        return String.format("(%s, %s)", this.pos, this.size);
+    }
 }

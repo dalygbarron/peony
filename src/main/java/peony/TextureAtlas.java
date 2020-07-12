@@ -3,10 +3,7 @@ package peony;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Meant to rip off the libgdx texture atlas format.
@@ -16,13 +13,22 @@ public class TextureAtlas {
      * A texture atlas region which as you can see is pretty minimalistic
      * compared to the libgdx version.
      */
-    public static class Region {
+    public static class Region implements Comparable<Region> {
         public Image image;
         public String name;
-        public int x;
-        public int y;
-        public int w;
-        public int h;
+        Rectangle dimensions = new Rectangle();
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        @Override
+        public int compareTo(Region o) {
+            if (this.name == null) return -1;
+            if (o.name == null) return 1;
+            return this.name.compareTo(o.name);
+        }
     }
 
     private static final String[] tuple = new String[4];
@@ -59,13 +65,16 @@ public class TextureAtlas {
                 region.image = current;
                 TextureAtlas.readValue(reader);
                 TextureAtlas.readTuple(reader);
-                region.x = Integer.parseInt(tuple[0]);
-                region.y = Integer.parseInt(tuple[1]);
+                region.dimensions.getPos().set(
+                    Integer.parseInt(tuple[0]),
+                    Integer.parseInt(tuple[1])
+                );
                 TextureAtlas.readTuple(reader);
-                region.w = Integer.parseInt(tuple[0]);
-                region.h = Integer.parseInt(tuple[1]);
+                region.dimensions.getSize().set(
+                    Integer.parseInt(tuple[0]),
+                    Integer.parseInt(tuple[1])
+                );
                 this.regions.put(region.name, region);
-                System.out.println("Adding region " + region.name);
                 if (TextureAtlas.readTuple(reader) == 4) {
                     if (TextureAtlas.readTuple(reader) == 4) {
                         TextureAtlas.readTuple(reader);
@@ -87,6 +96,14 @@ public class TextureAtlas {
     }
 
     /**
+     * Gets all of the regions in the atlas as a collection.
+     * @return the collection of regions.
+     */
+    public Collection<Region> getRegions() {
+        return this.regions.values();
+    }
+
+    /**
      * Reads a single value line from a texture atlas
      * @param reader is the thingy that is doing the reading from the point
      *               that it is currently up to.
@@ -97,7 +114,10 @@ public class TextureAtlas {
         String line = reader.readLine();
         int colon = line.indexOf(':');
         if (colon == -1) {
-            throw new IllegalArgumentException("Invalid atlas value: " + line);
+            throw new IllegalArgumentException(String.format(
+                "Invalid atlas value: '%s'",
+                line
+            ));
         }
         return line.substring(colon + 1).trim();
     }

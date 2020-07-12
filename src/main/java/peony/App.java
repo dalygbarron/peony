@@ -146,9 +146,22 @@ public class App {
         // Changing image leaf image
         view.addSelectImageListener((ActionEvent event) -> {
             File file = view.chooseImageFile();
-            Leaf leaf = view.getSelectedLeaf();
+            Leaf leaf = model.getSelectedLeaf();
             if (file != null && leaf instanceof ImageLeaf) {
                 ((ImageLeaf)leaf).setFile(file);
+            }
+        });
+        // Changing sprite leaf sprite.
+        view.addSelectSpriteListener((ActionEvent event) -> {
+            TextureAtlas atlas = model.getGame().getTextureAtlas();
+            Leaf leaf = model.getSelectedLeaf();
+            if (atlas == null) {
+                view.displayError("You need to select a texture atlas first.");
+            } else if (leaf instanceof SpriteLeaf) {
+                TextureAtlas.Region sprite = view.chooseSprite(atlas);
+                if (sprite != null) {
+                    ((SpriteLeaf)leaf).setSprite(sprite);
+                }
             }
         });
         // Selecting a leaf in the list.

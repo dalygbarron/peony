@@ -2,7 +2,6 @@ package peony;
 
 import org.json.JSONObject;
 
-import java.awt.*;
 import java.nio.file.Path;
 
 /**
@@ -10,12 +9,29 @@ import java.nio.file.Path;
  */
 public class SpriteLeaf extends Leaf {
     public static final String TITLE = "sprite";
+    TextureAtlas.Region sprite;
 
     /**
      * Default constructor.
      */
     public SpriteLeaf() {
         super(SpriteLeaf.TITLE);
+    }
+
+    /**
+     * Gives you the sprite that this leaf is currently using.
+     * @return the sprite which might be null.
+     */
+    public TextureAtlas.Region getSprite() {
+        return this.sprite;
+    }
+
+    /**
+     * Sets the leaf's sprite.
+     * @param sprite is the sprite to set it to.
+     */
+    public void setSprite(TextureAtlas.Region sprite) {
+        this.sprite = sprite;
     }
 
     /**
