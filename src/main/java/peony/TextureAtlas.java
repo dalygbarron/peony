@@ -2,10 +2,7 @@ package peony;
 
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,15 +32,13 @@ public class TextureAtlas {
 
     /**
      * Creates the texture atlas by giving it the file to read from.
-     * @param filename is the name of the file that we are reading.
+     * @param file is the file to load it from.
      * @throws IOException if shit fucks up.
-     * @throws FileNotFoundException if the reading from file is not found
      */
-    public TextureAtlas(String filename) throws IOException,
-        FileNotFoundException
+    public TextureAtlas(File file) throws IOException
     {
         Toolkit t = Toolkit.getDefaultToolkit();
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         Image current = null;
         while (true) {
             String line = reader.readLine();
@@ -56,8 +51,8 @@ public class TextureAtlas {
                 }
                 TextureAtlas.readTuple(reader);
                 TextureAtlas.readValue(reader);
-                Image page = t.getImage(line);
-                images.add(page);
+                current = t.getImage(line);
+                images.add(current);
             } else {
                 Region region = new Region();
                 region.name = line;
@@ -91,11 +86,18 @@ public class TextureAtlas {
         return this.regions.get(name);
     }
 
+    /**
+     * Reads a single value line from a texture atlas
+     * @param reader is the thingy that is doing the reading from the point
+     *               that it is currently up to.
+     * @return the read value.
+     * @throws IOException if the reading fails.
+     */
     private static String readValue(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         int colon = line.indexOf(':');
         if (colon == -1) {
-            throw new IllegalArgumentException("Invalid atlas line: " + line);
+            throw new IllegalArgumentException("Invalid atlas value: " + line);
         }
         return line.substring(colon + 1).trim();
     }
@@ -105,12 +107,16 @@ public class TextureAtlas {
      * enjoy.
      * @param reader is the reader to use to read the tuple.
      * @return the number of values read.
+     * @throws IOException if the read fails.
      */
     private static int readTuple(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         int colon = line.indexOf(':');
         if (colon == -1) {
-            throw new IllegalArgumentException("Invalid atlas line: " + line);
+            throw new IllegalArgumentException(String.format(
+                "Invalid atlas tuple: '%s'",
+                line
+            ));
         }
         int i;
         int lastMatch = colon + 1;

@@ -61,22 +61,29 @@ public class Game implements Artefact, TreeModel {
     }
 
     /**
+     * Gives you the texture atlas the game is using.
+     * @return the texture atlas.
+     */
+    public TextureAtlas getTextureAtlas() {
+        return this.textureAtlas;
+    }
+
+    /**
+     * Sets the game's texture atlas.
+     * @param textureAtlas is the texture atlas to set.
+     */
+    public void setTextureAtlas(TextureAtlas textureAtlas) {
+        // TODO: this is quite likely to fuck shit up because leaves are
+        //  going to have references to sprites that no longer exist.
+        this.textureAtlas = textureAtlas;
+    }
+
+    /**
      * Gives you the toplevel layout of the game.
      * @return the top level layout.
      */
     public Layout getFirstLayout() {
         return this.firstLayout;
-    }
-
-    /**
-     * Finds a layout using a tree path.
-     * @param path is the path by which to find it.
-     * @return the found layout if found, otherwise null but if the path is
-     *         legit that should not really happen.
-     */
-    public Layout getLayoutFromPath(TreePath path) {
-        Object[] points = path.getPath();
-        return null;
     }
 
     /**

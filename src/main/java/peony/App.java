@@ -4,6 +4,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.TreeSelectionEvent;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
 
 public class App {
     public static void main(String[] args) {
@@ -43,10 +44,7 @@ public class App {
         });
         // Game properties button.
         view.addGamePropertiesListener((ActionEvent event) -> {
-            view.displayError(String.format(
-                "The game is called %s",
-                model.getGame().getName()
-            ));
+            view.displayGameProperties();
         });
         // Loading.
         view.addLoadListener((ActionEvent event) -> {
@@ -196,6 +194,24 @@ public class App {
             if (selected instanceof ShapeLeaf) {
                 ((ShapeLeaf)selected).recentre();
                 window.repaint();
+            }
+        });
+        // Changing the game name.
+        view.addGameNameListener((ActionEvent event) -> {
+            model.getGame().setName(view.getGameName());
+        });
+        // Changing the game texture atlas.
+        view.addGameAtlasListener((ActionEvent event) -> {
+            File atlasFile = view.chooseAtlasFile();
+            if (atlasFile != null) {
+                try {
+                    model.getGame().setTextureAtlas(new TextureAtlas(atlasFile));
+                } catch (Exception e) {
+                    view.displayError(String.format(
+                        "Error loading texture atlas: %s",
+                        e.getMessage()
+                    ));
+                }
             }
         });
         // Window selecting a leaf.

@@ -25,6 +25,7 @@ public class View extends JFrame {
     private final JSplitPane verticalSplit;
     private final JFileChooser imageChooser = new JFileChooser();
     private final JFileChooser gameChooser = new JFileChooser();
+    private final JFileChooser atlasChooser = new JFileChooser();
     private final JDialog spriteChooser = new JDialog(this, "brexit", true);
     private final JPanel leafPropertiesPanel = new JPanel();
     private final JPanel leafMainPropertiesPanel = new JPanel(new GridLayout(0, 2));
@@ -58,11 +59,20 @@ public class View extends JFrame {
     private final JButton recentrePointsButton = new JButton("Recentre");
     private final Window window = new Window();
     private final RSyntaxTextArea script = new RSyntaxTextArea(20, 60);
+    private final JTextField gameName = new JTextField(10);
+    private final JButton gameAtlas = new JButton("Select Atlas");
+    private final JPanel gamePanel = new JPanel(new GridLayout(0, 2));
+    private final JDialog gameDialog = new JDialog(
+        this,
+        "Game Properties",
+        true
+    );
 
     /**
      * Creates and sets up the view.
      */
     public View() {
+        this.setTitle("Peony");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
         this.script.setSyntaxEditingStyle(
@@ -82,17 +92,20 @@ public class View extends JFrame {
         addMenu.add(this.addLayoutButton);
         menuBar.add(fileMenu);
         menuBar.add(addMenu);
-        FileNameExtensionFilter gameFilter = new FileNameExtensionFilter(
+        this.atlasChooser.setFileFilter(new FileNameExtensionFilter(
+            "LibGDX texture atlas files",
+            "atlas"
+        ));
+        this.atlasChooser.setAcceptAllFileFilterUsed(false);
+        this.gameChooser.setFileFilter(new FileNameExtensionFilter(
             "Readable game files",
             "json"
-        );
-        this.gameChooser.setFileFilter(gameFilter);
+        ));
         this.gameChooser.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        this.imageChooser.setFileFilter(new FileNameExtensionFilter(
             "Usable image files",
             "png"
-        );
-        this.imageChooser.setFileFilter(filter);
+        ));
         this.imageChooser.setAcceptAllFileFilterUsed(false);
         this.sprite.addActionListener((ActionEvent event) -> {
             this.spriteChooser.setVisible(true);
@@ -163,6 +176,11 @@ public class View extends JFrame {
         );
         this.add(horizontalSplit);
         this.setJMenuBar(menuBar);
+        this.gamePanel.add(new JLabel("Game Name"));
+        this.gamePanel.add(this.gameName);
+        this.gamePanel.add(new JLabel("Texture Atlas"));
+        this.gamePanel.add(this.gameAtlas);
+        this.gameDialog.getContentPane().add(this.gamePanel);
     }
 
     /**
@@ -172,6 +190,7 @@ public class View extends JFrame {
     public void setGame(Game game) {
         this.mapTree.setTransferHandler(new LayoutTransferHandler(game));
         this.mapTree.setModel(game);
+        this.gameName.setText(game.getName());
     }
 
     /**
@@ -252,6 +271,14 @@ public class View extends JFrame {
     }
 
     /**
+     * Tells you the name in the game name box.
+     * @return the name.
+     */
+    public String getGameName() {
+        return this.gameName.getText();
+    }
+
+    /**
      * Sets all of the leaf related stuff based on an actual leaf.
      * @param leaf is the leaf to set stuff based on.
      */
@@ -312,6 +339,7 @@ public class View extends JFrame {
         this.leafTree.setTransferHandler(new LeafTransferHandler(layout));
         this.leafTree.revalidate();
         this.window.setLayout(layout);
+        this.setTitle(layout.getFullName());
     }
 
     /**
@@ -508,6 +536,35 @@ public class View extends JFrame {
     }
 
     /**
+     * Adds a listener for when people change the text in the game name box.
+     * @param listener is the listener to listen.
+     */
+    public void addGameNameListener(ActionListener listener) {
+        this.gameName.addActionListener(listener);
+    }
+
+    /**
+     * Adds a listener to the game set texture atlas button.
+     * @param listener is the listener.
+     */
+    public void addGameAtlasListener(ActionListener listener) {
+        this.gameAtlas.addActionListener(listener);
+    }
+
+    /**
+     * Opens a dialog that lets you choose a game file, and then returns the
+     * result.
+     * @return the file found or null if they cancelled or something.
+     */
+    public File chooseAtlasFile() {
+        int result = this.atlasChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return this.atlasChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    /**
      * Opens a dialog that lets you choose a game file, and then returns the
      * result.
      * @return the file found or null if they cancelled or something.
@@ -531,6 +588,14 @@ public class View extends JFrame {
             return this.imageChooser.getSelectedFile();
         }
         return null;
+    }
+
+    /**
+     * Displays a modal with the properties of the game which can be edited.
+     */
+    public void displayGameProperties() {
+        this.gameDialog.pack();
+        this.gameDialog.setVisible(true);
     }
 
     /**
@@ -573,6 +638,6 @@ public class View extends JFrame {
      * @return the model.
      */
     private static SpinnerNumberModel makeRotationModel() {
-        return new SpinnerNumberModel(0, -Math.PI, Math.PI, 0.3);
+        return new SpinnerNumberModel(0, -Math.PI, Math.PI, Math.PI / 10);
     }
 }
