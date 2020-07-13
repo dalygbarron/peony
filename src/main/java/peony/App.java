@@ -5,8 +5,19 @@ import javax.swing.event.TreeSelectionEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.prefs.Preferences;
 
 public class App {
+    public static final int HISTORY_LENGTH = 5;
+    public static final String PACKAGE = "/com/liquidpig/peony/App";
+    public static final Preferences PREFERENCES = Preferences.systemRoot()
+        .node(App.PACKAGE);
+
+    /**
+     * Start of the program.
+     * @param args commandline arguments which are currently ignored completely.
+     */
     public static void main(String[] args) {
         Model model = new Model();
         View view = new View();
@@ -233,6 +244,27 @@ public class App {
             view.setLeaf(leaf);
         });
     	view.setVisible(true);
+    }
+
+    /**
+     * Gives you in order of recency the most recently saved games.
+     * @return an array of paths to the most recently saved games up to the
+     *         number that is at the top of this class in length.
+     */
+    public static Path[] getHistory() {
+        String history = App.PREFERENCES.getString
+    }
+
+    /**
+     * Adds a path to the saved path history and if the list is already at
+     * maximum length it drops one off the end.
+     */
+    public static void addToHistory() {
+
+    }
+
+    public static String censorString(String string) {
+        return string.replaceAll(";", "");
     }
     
     /**

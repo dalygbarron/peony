@@ -1,5 +1,6 @@
 package peony;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.file.Path;
@@ -115,14 +116,34 @@ public class Transformation implements Artefact {
      * @return the transformation created or an error message.
      */
     public static Result<Transformation> fromJson(JSONObject json) {
-        // TODO: this.
-        return Result.fail("later");
+        JSONObject translationObject;
+        float rotation;
+        float scale;
+        try {
+            translationObject = json.getJSONObject("translation");
+            rotation = json.getFloat("rotation");
+            scale = json.getFloat("scale");
+        } catch (JSONException e) {
+            return Result.fail(e.getMessage());
+        }
+        Result<Point> translation = Point.fromJson(translationObject);
+        if (translation.success()) {
+            return Result.ok(new Transformation(
+                translation.value(),
+                rotation,
+                scale
+            ));
+        }
+        return Result.fail(translation.message());
     }
 
     @Override
     public JSONObject toJson(Path path) {
-        // TODO: this.
-        return null;
+        JSONObject json = new JSONObject();
+        json.put("translation", this.translation.toJson(path));
+        json.put("rotation", this.rotation);
+        json.put("scale", this.scale);
+        return json;
     }
 
     @Override

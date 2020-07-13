@@ -165,12 +165,10 @@ public class Renderer {
      * @param sprite is the sprite to draw.
      */
     public void drawSprite(TextureAtlas.Region sprite) {
-        Point t = this.transform(
-            Point.ORIGIN.minus(sprite.dimensions.getSize().times(0.5f))
-        );
+        Point t = this.transform(sprite.dimensions.getSize().times(-0.5f));
         Point corner = this.transform(new Point(
             sprite.dimensions.getSize().getX() / 2,
-            0 - sprite.dimensions.getSize().getY() / 2
+            -sprite.dimensions.getSize().getY() / 2
         ));
         corner.subtract(t);
         AffineTransform tx = AffineTransform.getRotateInstance(
@@ -178,27 +176,24 @@ public class Renderer {
             t.getX(),
             t.getY()
         );
-        tx.translate(t.getX(), t.getY());
+        //tx.translate(t.getX(), t.getY());
+        float scale = corner.length() / sprite.dimensions.getSize().getX();
+        tx.scale(scale, scale);
         AffineTransform oldTransform = this.g.getTransform();
-        //this.g.setTransform(tx);
-        System.out.println(sprite.image);
-        this.g.drawImage(sprite.image, tx, null);
-        /*
+        this.g.setTransform(tx);
         this.g.drawImage(
             sprite.image,
-            0,
-            0,
-            sprite.dimensions.getSize().getXi(),
-            sprite.dimensions.getSize().getYi(),
+            t.getXi(),
+            t.getYi(),
+            t.getXi() + sprite.dimensions.getSize().getXi(),
+            t.getYi() + sprite.dimensions.getSize().getYi(),
             sprite.dimensions.getPos().getXi(),
             sprite.dimensions.getPos().getYi(),
             sprite.dimensions.getPos().getXi() + sprite.dimensions.getSize().getXi(),
             sprite.dimensions.getPos().getYi() + sprite.dimensions.getSize().getYi(),
             null
         );
-
-         */
-        //this.g.setTransform(oldTransform);
+        this.g.setTransform(oldTransform);
     }
 
     /**

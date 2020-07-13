@@ -210,8 +210,6 @@ public abstract class Leaf implements Artefact {
         String type;
         String name;
         JSONObject transformation;
-        float scale;
-        float rotation;
         try {
             type = json.getString("type");
             name = json.getString("name");
@@ -260,9 +258,9 @@ public abstract class Leaf implements Artefact {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("transformation", this.transformation.toJson(root));
-        JSONArray children = new JSONArray();
-        for (Leaf child: this.children) children.put(child.toJson(root));
-        json.put("children", children);
+        JSONArray childList = new JSONArray();
+        for (Leaf child: this.children) childList.put(child.toJson(root));
+        json.put("children", childList);
         return json;
     }
 

@@ -1,7 +1,10 @@
 package peony;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.imageio.ImageIO;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
@@ -9,7 +12,7 @@ import java.util.*;
 /**
  * Meant to rip off the libgdx texture atlas format.
  */
-public class TextureAtlas {
+public class TextureAtlas implements Artefact {
     /**
      * A texture atlas region which as you can see is pretty minimalistic
      * compared to the libgdx version.
@@ -46,6 +49,7 @@ public class TextureAtlas {
 
     private static final String[] tuple = new String[4];
 
+    private final Path source;
     private final List<Image> images = new ArrayList<>();
     private final Map<String, Region> regions = new HashMap<>();
 
@@ -56,7 +60,7 @@ public class TextureAtlas {
      */
     public TextureAtlas(File file) throws IOException
     {
-        Toolkit t = Toolkit.getDefaultToolkit();
+        this.source = file.toPath();
         BufferedReader reader = new BufferedReader(new FileReader(file));
         Image current = null;
         while (true) {
@@ -70,8 +74,14 @@ public class TextureAtlas {
                 }
                 TextureAtlas.readTuple(reader);
                 TextureAtlas.readValue(reader);
-                current = t.getImage(line);
-                images.add(current);
+                Result<Image> loadCurrent = TextureAtlas.loadImage(
+                    file.toPath(),
+                    Path.of(line)
+                );
+                if (loadCurrent.success()) {
+                    current = loadCurrent.value();
+                    images.add(current);
+                }
             } else {
                 TextureAtlas.readValue(reader);
                 TextureAtlas.readTuple(reader);
@@ -114,8 +124,54 @@ public class TextureAtlas {
         return this.regions.values();
     }
 
+    /**
+     * Loads an image with a filename that is relative to another file.
+     * @param root is the place where the first file is.
+     * @param file is where the file to open is relative to the first file.
+     * @return a result with the loaded file if it could be got.
+     */
     public static Result<Image> loadImage(Path root, Path file) {
-        root.
+        File relative = root.getParent().resolve(file).toFile();
+        try {
+            return Result.ok(ImageIO.read(relative));
+        } catch (IOException e) {
+            return Result.fail(String.format(
+                "Texture atlas image failed to load: %s",
+                e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Loads a texture atlas from json.
+     * @param json is the json to laod from.
+     * @param root is the location of the game file.
+     * @return a result with the atlas in it if it worked.
+     */
+    public static Result<TextureAtlas> fromJson(JSONObject json, Path root) {
+        String path;
+        try {
+            path = json.getString("path");
+        } catch (JSONException e) {
+            return Result.fail(String.format(
+                "Invalid json for texture atlas: %s",
+                e.getMessage()
+            ));
+        }
+        try {
+            Path filePath = root.resolve(Path.of(path));
+            return Result.ok(new TextureAtlas(filePath.toFile()));
+        } catch (IOException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    @Override
+    public JSONObject toJson(Path root) {
+        JSONObject json = new JSONObject();
+        Path relative = root.relativize(this.source);
+        json.put("path", relative.toString());
+        return json;
     }
 
     /**

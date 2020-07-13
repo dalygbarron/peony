@@ -2,11 +2,13 @@ package peony;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +40,16 @@ public class Game implements Artefact, TreeModel {
      * @param version     is the game's version.
      * @param firstLayout is the top layout of the game.
      */
-    public Game(String name, String version, Layout firstLayout) {
+    public Game(
+        String name,
+        String version,
+        Layout firstLayout,
+        TextureAtlas atlas
+    ) {
         this.name = name;
         this.version = version;
         this.firstLayout = firstLayout;
+        this.textureAtlas = atlas;
     }
 
     /**
@@ -169,7 +177,9 @@ public class Game implements Artefact, TreeModel {
      * @param json is the json object to become.
      * @return result with the game on success.
      */
-    public static Result<Game> fromJson(JSONObject json) {
+    public static Result<Game> fromJson(JSONObject json, Path root) {
+        TextureAtlas atlas = null;
+        JSONObject atlasJson = null;
         String name;
         String version;
         JSONObject layoutJson;
@@ -177,12 +187,21 @@ public class Game implements Artefact, TreeModel {
             name = json.getString("name");
             version = json.getString("version");
             layoutJson = json.getJSONObject("layout");
+            if (json.has("atlas")) atlasJson = json.getJSONObject("atlas");
         } catch (JSONException e) {
             return Result.fail("Invalid json for game object.");
         }
+        if (atlasJson != null) {
+            Result<TextureAtlas> atlasResult = TextureAtlas.fromJson(
+                atlasJson,
+                root
+            );
+            if (atlasResult.success()) atlas = atlasResult.value();
+            else return Result.fail(atlasResult.message());
+        }
         Result<Layout> layout = Layout.fromJson(layoutJson);
         if (layout.success()) {
-            return Result.ok(new Game(name, version, layout.value()));
+            return Result.ok(new Game(name, version, layout.value(), atlas));
         }
         return Result.fail(layout.message());
     }
@@ -192,8 +211,10 @@ public class Game implements Artefact, TreeModel {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("version", this.version);
-        // TODO: texture atlas and options.
         json.put("layout", this.firstLayout.toJson(root));
+        if (this.textureAtlas != null) {
+            json.put("atlas", this.textureAtlas.toJson(root));
+        }
         return json;
     }
 

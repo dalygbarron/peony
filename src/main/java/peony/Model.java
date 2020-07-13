@@ -91,7 +91,10 @@ public class Model {
     public Result<Void> load(File file) {
         Result<JSONObject> json = Util.readJson(file);
         if (!json.success()) return Result.fail(json.message());
-        Result<Game> newGame = Game.fromJson(json.value());
+        Result<Game> newGame = Game.fromJson(
+            json.value(),
+            file.toPath().getParent()
+        );
         if (!newGame.success()) return Result.fail(newGame.message());
         this.game = newGame.value();
         this.file = file;
