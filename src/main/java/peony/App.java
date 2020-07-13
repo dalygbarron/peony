@@ -10,6 +10,7 @@ import java.util.prefs.Preferences;
 
 public class App {
     public static final int HISTORY_LENGTH = 5;
+    public static final String HISTORY = "history";
     public static final String PACKAGE = "/com/liquidpig/peony/App";
     public static final Preferences PREFERENCES = Preferences.systemRoot()
         .node(App.PACKAGE);
@@ -252,19 +253,43 @@ public class App {
      *         number that is at the top of this class in length.
      */
     public static Path[] getHistory() {
-        String history = App.PREFERENCES.getString
+        String history = App.PREFERENCES.get(App.HISTORY, "");
+        String[] parts = history.split(";");
+        Path[] paths = new Path[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            paths[i] = Path.of(App.uncensorString(parts[i]));
+        }
+        return paths;
     }
 
     /**
      * Adds a path to the saved path history and if the list is already at
      * maximum length it drops one off the end.
      */
-    public static void addToHistory() {
-
+    public static void addToHistory(Path path) {
+        String history = App.PREFERENCES.get(App.HISTORY, "");
+        int n;
+        for (int i = 0; i < history.length(); i++) {
+            if (history.charAt(i) == ';') n++;
+        }
+        int end = history.length() - 1;
+        if (n >= App.HISTORY_LENGTH - 1) {
+            end = history.lastIndexOf(';');
+        }
+        history = String.format(
+            "%s;%s",
+            path.toString(),
+            history.substring(0, end)
+        );
+        App.PREFERENCES.put(App.HISTORY, history);
     }
 
     public static String censorString(String string) {
-        return string.replaceAll(";", "");
+        return string.replaceAll("@", "@@").replaceAll(";", "@d");
+    }
+
+    public static String uncensorString(String string) {
+        return string.replaceAll("@d", ";").replaceAll("@@", "@");
     }
     
     /**

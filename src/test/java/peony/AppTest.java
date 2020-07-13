@@ -6,4 +6,26 @@ package peony;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class AppTest {}
+public class AppTest {
+    @Test
+    public void testStringUncensor() {
+        String censored = "jo@@hnny@d.jpg";
+        String uncensored = App.uncensorString(censored);
+        assertEquals(
+            "should uncensor rightly",
+            "jo@hnny;.jpg",
+            uncensored
+        );
+    }
+
+    @Test
+    public void testStringCensor() {
+        String uncensored = "tango;5@gmail.com";
+        String censored = App.censorString(uncensored);
+        assertEquals(
+            "should censor rightly",
+            "tango@d5@@gmail.com",
+            censored
+        );
+    }
+}
