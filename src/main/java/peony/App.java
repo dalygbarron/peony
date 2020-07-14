@@ -248,51 +248,6 @@ public class App {
     }
 
     /**
-     * Gives you in order of recency the most recently saved games.
-     * @return an array of paths to the most recently saved games up to the
-     *         number that is at the top of this class in length.
-     */
-    public static Path[] getHistory() {
-        String history = App.PREFERENCES.get(App.HISTORY, "");
-        String[] parts = history.split(";");
-        Path[] paths = new Path[parts.length];
-        for (int i = 0; i < parts.length; i++) {
-            paths[i] = Path.of(App.uncensorString(parts[i]));
-        }
-        return paths;
-    }
-
-    /**
-     * Adds a path to the saved path history and if the list is already at
-     * maximum length it drops one off the end.
-     */
-    public static void addToHistory(Path path) {
-        String history = App.PREFERENCES.get(App.HISTORY, "");
-        int n;
-        for (int i = 0; i < history.length(); i++) {
-            if (history.charAt(i) == ';') n++;
-        }
-        int end = history.length() - 1;
-        if (n >= App.HISTORY_LENGTH - 1) {
-            end = history.lastIndexOf(';');
-        }
-        history = String.format(
-            "%s;%s",
-            path.toString(),
-            history.substring(0, end)
-        );
-        App.PREFERENCES.put(App.HISTORY, history);
-    }
-
-    public static String censorString(String string) {
-        return string.replaceAll("@", "@@").replaceAll(";", "@d");
-    }
-
-    public static String uncensorString(String string) {
-        return string.replaceAll("@d", ";").replaceAll("@@", "@");
-    }
-    
-    /**
      * Gives a leaf a name.
      * @param view is the app view.
      * @param model is the app model.
