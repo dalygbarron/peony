@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ public class View extends JFrame {
     private final JPanel leafSpritePropertiesPanel = new JPanel(new GridLayout(0, 2));
     private final JPanel leafShapePropertiesPanel = new JPanel(new GridLayout(0, 2));
     private final JMenuItem gamePropertiesButton = new JMenuItem("Game Properties");
+    private final JMenu recentFilesButton = new JMenu("Recent Files");
     private final JMenuItem loadButton = new JMenuItem("Load");
     private final JMenuItem saveButton = new JMenuItem("Save");
     private final JMenuItem quitButton = new JMenuItem("Exit");
@@ -82,6 +84,7 @@ public class View extends JFrame {
         );
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
+        fileMenu.add(this.recentFilesButton);
         fileMenu.add(this.loadButton);
         fileMenu.add(this.saveButton);
         fileMenu.add(this.gamePropertiesButton);
@@ -190,6 +193,7 @@ public class View extends JFrame {
         this.mapTree.setTransferHandler(new LayoutTransferHandler(game));
         this.mapTree.setModel(game);
         this.gameName.setText(game.getName());
+        this.setLayout((Layout)game.getRoot());
     }
 
     /**
@@ -556,6 +560,18 @@ public class View extends JFrame {
      */
     public void addGameAtlasListener(ActionListener listener) {
         this.gameAtlas.addActionListener(listener);
+    }
+
+    /**
+     * Adds a recent file button to the recent files list and adds a listener
+     * onto the button at the same time.
+     * @param path     is the path to the file.
+     * @param listener is the listener to hear when it is clicked.
+     */
+    public void addRecentButtonAndListen(Path path, ActionListener listener) {
+        JMenuItem item = new JMenuItem(path.toString());
+        item.addActionListener(listener);
+        this.recentFilesButton.add(item);
     }
 
     /**

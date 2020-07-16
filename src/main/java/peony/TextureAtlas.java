@@ -169,7 +169,7 @@ public class TextureAtlas implements Artefact {
     @Override
     public JSONObject toJson(Path root) {
         JSONObject json = new JSONObject();
-        Path relative = root.relativize(this.source);
+        Path relative = root.getParent().relativize(this.source);
         json.put("path", relative.toString());
         return json;
     }

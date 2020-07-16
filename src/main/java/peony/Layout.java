@@ -250,12 +250,11 @@ public class Layout implements Artefact, TreeModel {
 
     @Override
     public JSONObject toJson(Path path) {
-        JSONObject root = this.root.toJson(path);
         JSONArray children = new JSONArray();
         for (Layout child: this.getChildren()) children.put(child.toJson(path));
         JSONObject json = new JSONObject();
         json.put("name", this.name);
-        json.put("root", root);
+        json.put("root", this.root.toJson(path));
         json.put("children", children);
         return json;
     }

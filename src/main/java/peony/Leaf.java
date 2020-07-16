@@ -210,10 +210,12 @@ public abstract class Leaf implements Artefact {
         String type;
         String name;
         JSONObject transformation;
+        JSONArray childrenArray;
         try {
             type = json.getString("type");
             name = json.getString("name");
             transformation = json.getJSONObject("transformation");
+            childrenArray = json.getJSONArray("children");
         } catch (JSONException e) {
             return Result.fail(String.format(
                 "Invalid json for leaf object: %s",
@@ -249,6 +251,13 @@ public abstract class Leaf implements Artefact {
             Leaf actualLeaf = leaf.value();
             actualLeaf.name = name;
             actualLeaf.transformation = transformationResult.value();
+            for (int i = 0; i < childrenArray.length(); i++) {
+                Result<Leaf> child = Leaf.fromJson(
+                    childrenArray.getJSONObject(i)
+                );
+                if (child.success()) actualLeaf.children.add(child.value());
+                else return Result.fail(child.message());
+            }
         }
         return leaf;
     }

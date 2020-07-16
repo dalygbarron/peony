@@ -1,6 +1,8 @@
 package peony;
 
 import java.nio.file.Path;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * Takes care of keeping track of file history.
@@ -8,24 +10,34 @@ import java.nio.file.Path;
 public class History {
     public static final String HISTORY = "history";
     public static final int HISTORY_LENGTH = 4;
+    public static final String PACKAGE = "com/liquidpig/peony/History";
+    private final Preferences preferences;
+
+    /**
+     * Creates a history object and opens a connection to the preferences
+     * thing which it uses to save stuff.
+     */
+    public History() {
+        this.preferences = Preferences.userRoot().node(History.PACKAGE);
+    }
 
     /**
      * Gives you in order of recency the most recently saved games.
      * @return an array of paths to the most recently saved games up to the
      *         number that is at the top of this class in length.
      */
-    public static Path[] getHistory() {
-        return History.getHistoryFromString(History.getHistoryString());
+    public Path[] getHistory() {
+        return History.getHistoryFromString(this.getHistoryString());
     }
 
     /**
      * Adds a path to the saved path history and if the list is already at
      * maximum length it drops one off the end.
      */
-    public static void addToHistory(Path path) {
-        History.setHistoryString(History.addToHistoryString(
+    public void addToHistory(Path path) {
+        this.setHistoryString(History.addToHistoryString(
             path,
-            History.getHistoryString()
+            this.getHistoryString()
         ));
     }
 
@@ -35,6 +47,7 @@ public class History {
      * @return the list of paths.
      */
     public static Path[] getHistoryFromString(String history) {
+        if (history.length() == 0) return new Path[0];
         String[] parts = history.split(";");
         Path[] paths = new Path[parts.length];
         for (int i = 0; i < parts.length; i++) {
@@ -51,6 +64,8 @@ public class History {
      *         one taken off the end.
      */
     public static String addToHistoryString(Path path, String history) {
+        String censored = History.censorString(path.toString());
+        if (history.contains(censored)) return history;
         int n = 0;
         for (int i = 0; i < history.length(); i++) {
             if (history.charAt(i) == ';') n++;
@@ -59,11 +74,7 @@ public class History {
         if (n >= History.HISTORY_LENGTH - 1) {
             end = history.lastIndexOf(';');
         }
-        return String.format(
-            "%s;%s",
-            History.censorString(path.toString()),
-            history.substring(0, end)
-        );
+        return String.format("%s;%s", censored, history.substring(0, end));
     }
 
     /**
@@ -89,15 +100,20 @@ public class History {
      * Loads the history string from the preferences store thingo.
      * @return the found string or an empty string if there is not one.
      */
-    private static String getHistoryString() {
-        return App.PREFERENCES.get(History.HISTORY, "");
+    private String getHistoryString() {
+        return this.preferences.get(History.HISTORY, "");
     }
 
     /**
      * Sets the value of the history string in the preferences store thing.
      * @param history is the string to set.
      */
-    private static void setHistoryString(String history) {
-        App.PREFERENCES.put(History.HISTORY, history);
+    private void setHistoryString(String history) {
+        this.preferences.put(History.HISTORY, history);
+        try {
+            this.preferences.sync();
+        } catch (BackingStoreException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

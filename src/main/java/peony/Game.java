@@ -2,13 +2,10 @@ package peony;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +15,7 @@ import java.util.Map;
  * Represents an overall game.
  */
 public class Game implements Artefact, TreeModel {
-    private List<TreeModelListener> treeModelListeners = new ArrayList<>();
+    private final List<TreeModelListener> treeModelListeners = new ArrayList<>();
     private String name;
     private String version;
     private TextureAtlas textureAtlas;

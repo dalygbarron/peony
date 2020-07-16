@@ -10,10 +10,6 @@ import java.util.prefs.Preferences;
 
 public class App {
     public static final int HISTORY_LENGTH = 5;
-    public static final String HISTORY = "history";
-    public static final String PACKAGE = "/com/liquidpig/peony/App";
-    public static final Preferences PREFERENCES = Preferences.systemRoot()
-        .node(App.PACKAGE);
 
     /**
      * Start of the program.
@@ -33,6 +29,7 @@ public class App {
      * @param model is the actual data stuff that is 
      */
     private static void controller(View view, Model model) {
+        History history = new History();
     	// Renaming currently selected leaf.
         view.addLeafNameListener((ActionEvent event) -> {
             Leaf leaf = view.getSelectedLeaf();
@@ -76,8 +73,12 @@ public class App {
                 model.setFile(file);
             }
             Result<Void> result = model.save();
-            if (result.success()) view.displayError("Saved nicely.");
-            else view.displayError(result.message());
+            if (result.success()) {
+                history.addToHistory(model.getFile().toPath().toAbsolutePath());
+                view.displayError("Saved nicely.");
+            } else {
+                view.displayError(result.message());
+            }
         });
         // Quitting.
         view.addQuitListener((ActionEvent event) -> {
@@ -244,6 +245,14 @@ public class App {
             model.setSelectedLeaf(leaf);
             view.setLeaf(leaf);
         });
+        // History selecting.
+        for (Path path: history.getHistory()) {
+            view.addRecentButtonAndListen(path, (ActionEvent event) -> {
+                Result<Void> result = model.load(path.toFile());
+                if (!result.success()) view.displayError(result.message());
+                else view.setGame(model.getGame());
+            });
+        }
     	view.setVisible(true);
     }
 
