@@ -255,8 +255,12 @@ public abstract class Leaf implements Artefact {
                 Result<Leaf> child = Leaf.fromJson(
                     childrenArray.getJSONObject(i)
                 );
-                if (child.success()) actualLeaf.children.add(child.value());
-                else return Result.fail(child.message());
+                if (child.success()) {
+                    actualLeaf.children.add(child.value());
+                    child.value().setParent(actualLeaf);
+                } else {
+                    return Result.fail(child.message());
+                }
             }
         }
         return leaf;
