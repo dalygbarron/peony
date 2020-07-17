@@ -188,6 +188,7 @@ public class App {
         view.addMapTreeListener((TreeSelectionEvent event) -> {
             Layout layout = view.getSelectedLayout();
             if (layout != null) {
+                model.setSelectedLayout(layout);
                 view.setLayout(layout);
             }
         });

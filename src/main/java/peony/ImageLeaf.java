@@ -36,7 +36,7 @@ public class ImageLeaf extends Leaf implements ImageObserver {
         try {
             this.image = ImageIO.read(file);
         } catch (IOException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
             this.file = null;
             this.image = null;
             return;

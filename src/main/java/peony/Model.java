@@ -98,6 +98,7 @@ public class Model {
         if (!newGame.success()) return Result.fail(newGame.message());
         this.game = newGame.value();
         this.file = file;
+        this.selectedLayout = this.game.getFirstLayout();
         return Result.ok();
     }
 
