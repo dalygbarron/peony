@@ -4,7 +4,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
-import java.awt.Image;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
@@ -18,7 +19,6 @@ public class TextureAtlas implements Artefact {
      * compared to the libgdx version.
      */
     public static class Region implements Comparable<Region> {
-        public final Rectangle dimensions = new Rectangle();
         public final Image image;
         public final String name;
 
@@ -27,11 +27,9 @@ public class TextureAtlas implements Artefact {
          * @param image is the image to do it with.
          * @param name  is it's name.
          */
-        public Region(Image image, String name, Point pos, Point size) {
+        public Region(Image image, String name) {
             this.image = image;
             this.name = name;
-            this.dimensions.getPos().set(pos);
-            this.dimensions.getSize().set(size);
         }
 
         @Override
@@ -48,9 +46,7 @@ public class TextureAtlas implements Artefact {
     }
 
     private static final String[] tuple = new String[4];
-
     private final Path source;
-    private final List<Image> images = new ArrayList<>();
     private final Map<String, Region> regions = new HashMap<>();
 
     /**
@@ -78,10 +74,7 @@ public class TextureAtlas implements Artefact {
                     file.toPath(),
                     Path.of(line)
                 );
-                if (loadCurrent.success()) {
-                    current = loadCurrent.value();
-                    images.add(current);
-                }
+                if (loadCurrent.success()) current = loadCurrent.value();
             } else {
                 TextureAtlas.readValue(reader);
                 TextureAtlas.readTuple(reader);
@@ -94,7 +87,11 @@ public class TextureAtlas implements Artefact {
                     Integer.parseInt(tuple[0]),
                     Integer.parseInt(tuple[1])
                 );
-                Region region = new Region(current, line, pos, size);
+                Image portion = TextureAtlas.subImage(
+                    current,
+                    new Rectangle(pos, size)
+                );
+                Region region = new Region(portion, line);
                 this.regions.put(region.name, region);
                 if (TextureAtlas.readTuple(reader) == 4) {
                     if (TextureAtlas.readTuple(reader) == 4) {
@@ -122,6 +119,34 @@ public class TextureAtlas implements Artefact {
      */
     public Collection<Region> getRegions() {
         return this.regions.values();
+    }
+
+    /**
+     * Creates a new image using a part of an existing image.
+     * @param full is the image to get the part out of.
+     * @param part is the part to get from the full image.
+     * @return the partial image as a new image.
+     */
+    public static Image subImage(Image full, Rectangle part) {
+        BufferedImage newImage = new BufferedImage(
+            part.getSize().getXi(),
+            part.getSize().getYi(),
+            BufferedImage.TYPE_4BYTE_ABGR
+        );
+        Graphics2D g = (Graphics2D)newImage.getGraphics();
+        g.drawImage(
+            full,
+            0,
+            0,
+            part.getSize().getXi(),
+            part.getSize().getYi(),
+            part.getPos().getXi(),
+            part.getPos().getYi(),
+            part.getPos().getXi() + part.getSize().getXi(),
+            part.getPos().getYi() + part.getSize().getYi(),
+            null
+        );
+        return newImage;
     }
 
     /**

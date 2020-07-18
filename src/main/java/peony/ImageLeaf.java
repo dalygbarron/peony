@@ -13,12 +13,11 @@ import java.nio.file.Path;
 /**
  * A leaf that consists of a whole image file.
  */
-public class ImageLeaf extends Leaf implements ImageObserver {
+public class ImageLeaf extends Leaf {
     public static final String TITLE = "image";
     public static final int SELECT_RADIUS = 16;
     private File file;
     private Image image;
-    private final Rectangle dimensions = new Rectangle();
 
     /**
      * Default constructor.
@@ -41,11 +40,6 @@ public class ImageLeaf extends Leaf implements ImageObserver {
             this.image = null;
             return;
         }
-        float width = this.image.getWidth(this);
-        float height = this.image.getHeight(this);
-        if (width == -1) width = this.dimensions.getSize().getX();
-        if (height == -1) height = this.dimensions.getSize().getY();
-        this.dimensions.set(new Point(width, height));
     }
 
     /**
@@ -56,8 +50,10 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     public static Result<Leaf> fromJson(JSONObject json) {
         ImageLeaf leaf = new ImageLeaf();
         try {
-            File file = new File(json.getString("file"));
-            leaf.setFile(file);
+            if (json.has("file")) {
+                File file = new File(json.getString("file"));
+                leaf.setFile(file);
+            }
         } catch (JSONException e) {
             return Result.fail("Invalid json for imageleaf: %s", json);
         }
@@ -67,16 +63,18 @@ public class ImageLeaf extends Leaf implements ImageObserver {
     @Override
     public boolean insideLocal(Point point) {
         if (this.image == null) return point.length() < ImageLeaf.SELECT_RADIUS;
-            return this.dimensions.contains(point);
+        return Renderer.getDimensions(this.image).contains(point);
     }
 
     @Override
     public void renderParticular(Renderer r) {
         this.normalColour(r);
         if (this.image != null) {
-            r.drawImage(this.image, this.dimensions);
+            r.drawImage(this.image);
+            if (r.isLeafSelected(this)) {
+                r.drawRectangle(Renderer.getDimensions(this.image));
+            }
         }
-        if (r.isLeafSelected(this)) r.drawRectangle(this.dimensions);
     }
 
     @Override
@@ -87,32 +85,13 @@ public class ImageLeaf extends Leaf implements ImageObserver {
 
     @Override
     public JSONObject toJson(Path root) {
-        Path imagePath = this.file.toPath();
-        Path relative = root.getParent().relativize(imagePath);
         JSONObject json = super.toJson(root);
         json.put("type", ImageLeaf.TITLE);
-        json.put("file", relative.toString());
+        if (this.file != null) {
+            Path imagePath = this.file.toPath();
+            Path relative = root.getParent().relativize(imagePath);
+            json.put("file", relative.toString());
+        }
         return json;
-    }
-
-    @Override
-    public boolean imageUpdate(
-        Image img,
-        int infoflags,
-        int x,
-        int y,
-        int width,
-        int height
-    ) {
-        float newWidth = this.dimensions.getSize().getX();
-        float newHeight = this.dimensions.getSize().getY();
-        if ((infoflags & ImageObserver.WIDTH) != 0) {
-            newWidth = width;
-        }
-        if ((infoflags & ImageObserver.HEIGHT) != 0) {
-            newHeight = height;
-        }
-        this.dimensions.set(new Point(newWidth, newHeight));
-        return false;
     }
 }

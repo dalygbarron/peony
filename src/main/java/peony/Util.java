@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -20,6 +21,8 @@ public class Util {
             return Result.ok(new Scanner(file).useDelimiter("\\Z").next());
         } catch (IOException e) {
             return Result.fail(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return Result.fail("File is empty.");
         }
     }
 

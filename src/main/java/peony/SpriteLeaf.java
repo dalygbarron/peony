@@ -10,6 +10,7 @@ import java.nio.file.Path;
  */
 public class SpriteLeaf extends Leaf {
     public static final String TITLE = "sprite";
+    public static final float SELECT_RADIUS = 16;
     TextureAtlas.Region sprite;
 
     /**
@@ -47,14 +48,21 @@ public class SpriteLeaf extends Leaf {
 
     @Override
     public boolean insideLocal(Point point) {
-        // TODO: this.
-        return true;
+        if (this.sprite == null) {
+            return point.length() < SpriteLeaf.SELECT_RADIUS;
+        }
+        return Renderer.getDimensions(this.sprite.image).contains(point);
     }
 
     @Override
     public void renderParticular(Renderer r) {
         this.normalColour(r);
-        if (this.sprite != null) r.drawSprite(this.sprite);
+        if (this.sprite != null) {
+            r.drawImage(this.sprite.image);
+            if (r.isLeafSelected(this)) {
+                r.drawRectangle(Renderer.getDimensions(this.sprite.image));
+            }
+        }
     }
 
     @Override

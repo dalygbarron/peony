@@ -142,9 +142,11 @@ public class Renderer {
     /**
      * Draws a pic at origin.
      * @param image is the pic.
-     * @param dimensions is the rectangle defining where it should be fitted.
      */
-    public void drawImage(Image image, Rectangle dimensions) {
+    public void drawImage(Image image) {
+        int width = image.getWidth(null);
+        int height = image.getHeight(null);
+        Rectangle dimensions =  new Rectangle(new Point(width, height));
         Point t = this.transform(dimensions.getPos());
         Point corner = this.transform(dimensions.getTopRightCorner());
         corner.subtract(t);
@@ -154,46 +156,21 @@ public class Renderer {
             t.getY()
         );
         tx.translate(t.getX(), t.getY());
-        int width = image.getWidth(null);
         float scale = corner.length() / width;
         tx.scale(scale, scale);
         this.g.drawImage(image, tx, null);
     }
 
     /**
-     * Draws a sprite at origin.
-     * @param sprite is the sprite to draw.
+     * Creates a rectangle that covers the dimensions of a given image
+     * positioned such that the middle of the image is at the origin point.
+     * @param image is the image to enjoy.
+     * @return the rectangle I just told you about.
      */
-    public void drawSprite(TextureAtlas.Region sprite) {
-        Point t = this.transform(sprite.dimensions.getSize().times(-0.5f));
-        Point corner = this.transform(new Point(
-            sprite.dimensions.getSize().getX() / 2,
-            -sprite.dimensions.getSize().getY() / 2
-        ));
-        corner.subtract(t);
-        AffineTransform tx = AffineTransform.getRotateInstance(
-            corner.angle(),
-            t.getX(),
-            t.getY()
-        );
-        //tx.translate(t.getX(), t.getY());
-        float scale = corner.length() / sprite.dimensions.getSize().getX();
-        tx.scale(scale, scale);
-        AffineTransform oldTransform = this.g.getTransform();
-        this.g.setTransform(tx);
-        this.g.drawImage(
-            sprite.image,
-            t.getXi(),
-            t.getYi(),
-            t.getXi() + sprite.dimensions.getSize().getXi(),
-            t.getYi() + sprite.dimensions.getSize().getYi(),
-            sprite.dimensions.getPos().getXi(),
-            sprite.dimensions.getPos().getYi(),
-            sprite.dimensions.getPos().getXi() + sprite.dimensions.getSize().getXi(),
-            sprite.dimensions.getPos().getYi() + sprite.dimensions.getSize().getYi(),
-            null
-        );
-        this.g.setTransform(oldTransform);
+    public static Rectangle getDimensions(Image image) {
+        int width = image.getWidth(null);
+        int height = image.getHeight(null);
+        return new Rectangle(new Point(width, height));
     }
 
     /**
