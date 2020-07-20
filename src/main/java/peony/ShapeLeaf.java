@@ -112,9 +112,10 @@ public class ShapeLeaf extends Leaf {
     /**
      * Creates an shapeleaf from json.
      * @param json is the thingy to turn into an shape leaf.
+     * @param root is the location of the gmae file.
      * @return the result containing the shape leaf or error.
      */
-    public static Result<Leaf> fromJson(JSONObject json) {
+    public static Result<Leaf> fromJson(JSONObject json, Path root) {
         // TODO: stuff.
         return Result.ok(new ShapeLeaf());
     }

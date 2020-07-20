@@ -26,9 +26,10 @@ public class PointLeaf extends Leaf {
     /**
      * Creates an pointleaf from json.
      * @param json is the thingy to turn into an point leaf.
+     * @param root is the location of the game file.
      * @return the result containing the point leaf or error.
      */
-    public static Result<Leaf> fromJson(JSONObject json) {
+    public static Result<Leaf> fromJson(JSONObject json, Path root) {
         return Result.ok(new PointLeaf());
     }
 

@@ -8,3 +8,4 @@ build
 *.swp
 .swn
 .swo
+.DS_STORE

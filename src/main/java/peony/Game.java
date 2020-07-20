@@ -196,7 +196,7 @@ public class Game implements Artefact, TreeModel {
             if (atlasResult.success()) atlas = atlasResult.value();
             else return Result.fail(atlasResult.message());
         }
-        Result<Layout> layout = Layout.fromJson(layoutJson);
+        Result<Layout> layout = Layout.fromJson(layoutJson, root);
         if (layout.success()) {
             return Result.ok(new Game(name, version, layout.value(), atlas));
         }

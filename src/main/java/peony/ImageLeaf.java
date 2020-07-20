@@ -38,21 +38,21 @@ public class ImageLeaf extends Leaf {
             System.err.println(e.getMessage());
             this.file = null;
             this.image = null;
-            return;
         }
     }
 
     /**
      * Creates an imageleaf from json.
      * @param json is the thingy to turn into an image leaf.
+     * @param root is the location of the main game file.
      * @return the result containing the image leaf or error.
      */
-    public static Result<Leaf> fromJson(JSONObject json) {
+    public static Result<Leaf> fromJson(JSONObject json, Path root) {
         ImageLeaf leaf = new ImageLeaf();
         try {
             if (json.has("file")) {
-                File file = new File(json.getString("file"));
-                leaf.setFile(file);
+                Path imagePath = root.resolve(Path.of(json.getString("file")));
+                leaf.setFile(imagePath.toFile());
             }
         } catch (JSONException e) {
             return Result.fail("Invalid json for imageleaf: %s", json);

@@ -20,6 +20,7 @@ import java.util.List;
 public class Layout implements Artefact, TreeModel {
     private List<TreeModelListener> treeModelListeners = new ArrayList<>();
     private String name;
+    private String script;
     private Leaf root;
     private List<Layout> children;
     private Layout parent;
@@ -80,6 +81,22 @@ public class Layout implements Artefact, TreeModel {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Gives you the layout's current script.
+     * @return the script.
+     */
+    public String getScript() {
+        return script;
+    }
+
+    /**
+     * Sets the layout's script.
+     * @param script is the script to give it.
+     */
+    public void setScript(String script) {
+        this.script = script;
     }
 
     /**
@@ -218,10 +235,11 @@ public class Layout implements Artefact, TreeModel {
     /**
      * Creates a map from a json object.
      * @param json is the json object to use.
+     * @param path is the path to the game file.
      * @return the map in a result unless the json is malformed in which case
      *          you are gonna get an error.
      */
-    public static Result<Layout> fromJson(JSONObject json) {
+    public static Result<Layout> fromJson(JSONObject json, Path path) {
         String name;
         JSONObject rootJson;
         JSONArray children;
@@ -232,11 +250,15 @@ public class Layout implements Artefact, TreeModel {
         } catch (JSONException e) {
             return Result.fail("Invalid json for layout object.");
         }
-        Result<Leaf> root = Leaf.fromJson(rootJson);
+        Result<Leaf> root = Leaf.fromJson(rootJson, path);
         if (!root.success()) return Result.fail(root.message());
         Layout layout = new Layout(name, root.value());
+        if (json.has("script")) layout.setScript(json.getString("script"));
         for (int i = 0; i < children.length(); i++) {
-            Result<Layout> child = Layout.fromJson(children.getJSONObject(i));
+            Result<Layout> child = Layout.fromJson(
+                children.getJSONObject(i),
+                path
+            );
             if (child.success()) layout.addChild(child.value());
             else return Result.fail(child.message());
         }
@@ -256,6 +278,7 @@ public class Layout implements Artefact, TreeModel {
         json.put("name", this.name);
         json.put("root", this.root.toJson(path));
         json.put("children", children);
+        json.put("script", this.script);
         return json;
     }
 

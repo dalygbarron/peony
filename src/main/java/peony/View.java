@@ -2,14 +2,16 @@ package peony;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
@@ -17,8 +19,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
 
 /**
  * Manages the program's user interface.
@@ -26,6 +26,48 @@ import java.util.Enumeration;
 public class View extends JFrame {
     private final PigTree leafTree = new PigTree();
     private final PigTree mapTree = new PigTree();
+    private final JButton seeAllButton = View.makeIconButton(
+        "/seeAllIcon.png",
+        "See the whole layout"
+    );
+    private final JButton centreViewButton = View.makeIconButton(
+        "/centreViewIcon.png",
+        "Centre leaf in view"
+    );
+    private final JButton rotateButton = View.makeIconButton(
+        "/rotateIcon.png",
+        "Interactively rotate the selected leaf"
+    );
+    private final JButton scaleButton = View.makeIconButton(
+        "/scaleIcon.png",
+        "Interactively scale the selected leaf"
+    );
+    private final JButton removeButton = View.makeIconButton(
+        "/removeIcon.png",
+        "Remove the selected leaf"
+    );
+    private final JButton splitButton = View.makeIconButton(
+        "/splitIcon.png",
+        "Split the currently selected edge"
+    );
+    private final JButton removeNodeButton = View.makeIconButton(
+        "/removeNodeIcon.png",
+        "Remove the currently selected node from the shape"
+    );
+    private final JButton recentreButton = View.makeIconButton(
+        "/recentreIcon.png",
+        "Make the centre of the shape be it's origin without moving anything"
+    );
+    private final JButton previousNodeButton = View.makeIconButton(
+        "/leftIcon.png",
+        "Select the previous node in the shape"
+    );
+    private final JButton nextNodeButton = View.makeIconButton(
+        "/rightIcon.png",
+        "Select the next node in the shape"
+    );
+    private final JToolBar toolbar = new JToolBar("Leaf Tools");
+    private final JToolBar shapeToolbar = new JToolBar("Shape Tools");
     private final JSplitPane verticalSplit;
     private final JFileChooser imageChooser = new JFileChooser();
     private final JFileChooser gameChooser = new JFileChooser();
@@ -57,7 +99,6 @@ public class View extends JFrame {
     private final JTextField displayName = new JTextField(10);
     private final JButton sprite = new JButton("Select Sprite");
     private final JButton image = new JButton("Select Image");
-    private final JMenuItem removeButton = new JMenuItem("Remove");
     private final JButton splitPointButton = new JButton("Split");
     private final JButton removePointButton = new JButton("Remove");
     private final JButton recentrePointsButton = new JButton("Recentre");
@@ -79,9 +120,20 @@ public class View extends JFrame {
         this.setTitle("Peony");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(640, 480);
+        this.script.setMarginLineEnabled(true);
         this.script.setSyntaxEditingStyle(
             SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
         );
+        this.toolbar.add(this.seeAllButton);
+        this.toolbar.add(this.centreViewButton);
+        this.toolbar.add(this.rotateButton);
+        this.toolbar.add(this.scaleButton);
+        this.toolbar.add(this.removeButton);
+        this.shapeToolbar.add(this.splitButton);
+        this.shapeToolbar.add(this.removeNodeButton);
+        this.shapeToolbar.add(this.recentreButton);
+        this.shapeToolbar.add(this.previousNodeButton);
+        this.shapeToolbar.add(this.nextNodeButton);
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(this.recentFilesButton);
@@ -97,6 +149,8 @@ public class View extends JFrame {
         addMenu.add(this.addLayoutButton);
         menuBar.add(fileMenu);
         menuBar.add(addMenu);
+        menuBar.add(this.toolbar);
+        menuBar.add(this.shapeToolbar);
         this.atlasChooser.setFileFilter(new FileNameExtensionFilter(
             "LibGDX texture atlas files",
             "atlas"
@@ -154,6 +208,7 @@ public class View extends JFrame {
         this.mapTree.setDropMode(DropMode.ON_OR_INSERT);
         propertiesTabs.addTab("Leaf", leafPropertiesPanel);
         propertiesTabs.addTab("Layout", mapPropertiesPanel);
+        this.leafTree.setCellRenderer(new LeafTreeCellRenderer());
         this.leafTree.getSelectionModel().setSelectionMode(
             TreeSelectionModel.SINGLE_TREE_SELECTION
         );
@@ -162,7 +217,8 @@ public class View extends JFrame {
         this.leafTree.setDropMode(DropMode.ON_OR_INSERT);
         JTabbedPane mainTabs = new JTabbedPane();
         mainTabs.addTab("Layout", this.window);
-        mainTabs.addTab("Script", this.script);
+        RTextScrollPane scriptPane = new RTextScrollPane(this.script);
+        mainTabs.addTab("Script", scriptPane);
         JTabbedPane listTabs = new JTabbedPane();
         listTabs.addTab("Leaves", new JScrollPane(this.leafTree));
         listTabs.addTab("Layouts", new JScrollPane(this.mapTree));
@@ -343,6 +399,7 @@ public class View extends JFrame {
         this.leafTree.revalidate();
         this.window.setLayout(layout);
         this.setTitle(layout.getFullName());
+        this.script.setText(layout.getScript());
     }
 
     /**
@@ -563,6 +620,14 @@ public class View extends JFrame {
     }
 
     /**
+     * Adds a listener to when the script changes.
+     * @param listener is the listener to add to listen.
+     */
+    public void addScriptListener(DocumentListener listener) {
+        this.script.getDocument().addDocumentListener(listener);
+    }
+
+    /**
      * Adds a recent file button to the recent files list and adds a listener
      * onto the button at the same time.
      * @param path     is the path to the file.
@@ -649,6 +714,19 @@ public class View extends JFrame {
      */
     public void displayError(String message) {
         JOptionPane.showMessageDialog(this, message);
+    }
+
+    /**
+     * Creates a button that has got not but an icon.
+     * @param icon is the name of the icon in the resources thing to add.
+     * @param tip  is the tooltip to show when you hover it.
+     * @return the created buttonen.
+     */
+    public static JButton makeIconButton(String icon, String tip) {
+        JButton button = new JButton();
+        button.setToolTipText(tip);
+        button.setIcon(new ImageIcon(View.class.getResource(icon)));
+        return button;
     }
 
     /**

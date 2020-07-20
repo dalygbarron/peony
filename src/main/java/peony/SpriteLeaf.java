@@ -41,8 +41,11 @@ public class SpriteLeaf extends Leaf {
      * @param json is the thingy to turn into an sprite leaf.
      * @return the result containing the sprite leaf or error.
      */
-    public static Result<Leaf> fromJson(JSONObject json) {
-        // TODO: stuff.
+    public static Result<Leaf> fromJson(JSONObject json, Path root) {
+        // TODO: This is not ideal for how it works currently. It really
+        //  needs to get access to the game object or something so that it
+        //  can set itself to have the sprite it wants from the game's
+        //  texture atlas.
         return Result.ok(new SpriteLeaf());
     }
 

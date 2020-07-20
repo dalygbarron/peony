@@ -1,7 +1,11 @@
 package peony;
 
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -238,6 +242,47 @@ public class App {
                         "Error loading texture atlas: %s",
                         e.getMessage()
                     ));
+                }
+            }
+        });
+        // Editing the script.
+        view.addScriptListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent event) {
+                Document document = event.getDocument();
+                try {
+                    model.getSelectedLayout().setScript(document.getText(
+                        0,
+                        document.getLength()
+                    ));
+                } catch (BadLocationException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                Document document = event.getDocument();
+                try {
+                    model.getSelectedLayout().setScript(document.getText(
+                        0,
+                        document.getLength()
+                    ));
+                } catch (BadLocationException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                Document document = event.getDocument();
+                try {
+                    model.getSelectedLayout().setScript(document.getText(
+                        0,
+                        document.getLength()
+                    ));
+                } catch (BadLocationException e) {
+                    System.err.println(e.getMessage());
                 }
             }
         });

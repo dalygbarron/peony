@@ -141,7 +141,8 @@ public abstract class Leaf implements Artefact {
      */
     public Pair<Leaf, Point> hit(Point point) {
         Point t = this.transformation.in(point);
-        for (Leaf child: this.children) {
+        for (int i = this.children.size() - 1; i >= 0; i--) {
+            Leaf child = this.children.get(i);
             Pair<Leaf, Point> found = child.hit(t);
             if (found.getA() != null) return found;
         }
@@ -204,9 +205,10 @@ public abstract class Leaf implements Artefact {
     /**
      * Creates a leaf from json, and handles the polymorphism and that.
      * @param json is the json to turn into a leaf.
+     * @param root is the path to the main game file.
      * @return the created leaf in a result thing unless it fucks up.
      */
-    public static Result<Leaf> fromJson(JSONObject json) {
+    public static Result<Leaf> fromJson(JSONObject json, Path root) {
         String type;
         String name;
         JSONObject transformation;
@@ -230,16 +232,16 @@ public abstract class Leaf implements Artefact {
         Result<Leaf> leaf;
         switch (type) {
             case PointLeaf.TITLE:
-                leaf = PointLeaf.fromJson(json);
+                leaf = PointLeaf.fromJson(json, root);
                 break;
             case ShapeLeaf.TITLE:
-                leaf = ShapeLeaf.fromJson(json);
+                leaf = ShapeLeaf.fromJson(json, root);
                 break;
             case SpriteLeaf.TITLE:
-                leaf = SpriteLeaf.fromJson(json);
+                leaf = SpriteLeaf.fromJson(json, root);
                 break;
             case ImageLeaf.TITLE:
-                leaf = ImageLeaf.fromJson(json);
+                leaf = ImageLeaf.fromJson(json, root);
                 break;
             default:
                 return Result.fail(String.format(
@@ -253,7 +255,8 @@ public abstract class Leaf implements Artefact {
             actualLeaf.transformation = transformationResult.value();
             for (int i = 0; i < childrenArray.length(); i++) {
                 Result<Leaf> child = Leaf.fromJson(
-                    childrenArray.getJSONObject(i)
+                    childrenArray.getJSONObject(i),
+                    root
                 );
                 if (child.success()) {
                     actualLeaf.children.add(child.value());
