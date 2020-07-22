@@ -8,13 +8,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.event.*;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.prefs.Preferences;
 
 public class App {
-    public static final int HISTORY_LENGTH = 5;
-
     /**
      * Start of the program.
      * @param args commandline arguments which are currently ignored completely.

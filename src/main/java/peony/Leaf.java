@@ -231,11 +231,13 @@ public abstract class Leaf implements Artefact {
     public static Result<Leaf> fromJson(JSONObject json, Path root) {
         String type;
         String name;
+        boolean locked;
         JSONObject transformation;
         JSONArray childrenArray;
         try {
             type = json.getString("type");
             name = json.getString("name");
+            locked = json.getBoolean("locked");
             transformation = json.getJSONObject("transformation");
             childrenArray = json.getJSONArray("children");
         } catch (JSONException e) {
@@ -273,6 +275,7 @@ public abstract class Leaf implements Artefact {
             Leaf actualLeaf = leaf.value();
             actualLeaf.name = name;
             actualLeaf.transformation = transformationResult.value();
+            actualLeaf.locked = locked;
             for (int i = 0; i < childrenArray.length(); i++) {
                 Result<Leaf> child = Leaf.fromJson(
                     childrenArray.getJSONObject(i),
@@ -294,6 +297,7 @@ public abstract class Leaf implements Artefact {
         JSONObject json = new JSONObject();
         json.put("name", this.name);
         json.put("transformation", this.transformation.toJson(root));
+        json.put("locked", this.locked);
         JSONArray childList = new JSONArray();
         for (Leaf child: this.children) childList.put(child.toJson(root));
         json.put("children", childList);
