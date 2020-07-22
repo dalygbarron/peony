@@ -32,8 +32,9 @@ public class Layout implements Artefact, TreeModel {
     public Layout() {
         this.name = "start";
         this.children = new ArrayList<>();
-        this.root = new PointLeaf();
-        this.root.setName("root");
+        this.root = new ImageLeaf();
+        this.root.setName("bg");
+        this.root.setLocked(true);
     }
 
     /**

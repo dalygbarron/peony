@@ -160,6 +160,13 @@ public class App {
             leaf.getTransformation().setRotation(view.getRotation());
             view.getWindow().repaint();
         });
+        // Changing leaf lock value.
+        view.addChangeLockedListener((ActionEvent event) -> {
+            Leaf leaf = model.getSelectedLeaf();
+            if (leaf == null) return;
+            leaf.setLocked(view.getLocked());
+            view.getWindow().repaint();
+        });
         // Changing image leaf image
         view.addSelectImageListener((ActionEvent event) -> {
             File file = view.chooseImageFile();

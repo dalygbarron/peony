@@ -96,7 +96,7 @@ public class View extends JFrame {
     private final JSpinner yPosition = new JSpinner(this.yPositionModel);
     private final JSpinner scale = new JSpinner(this.scaleModel);
     private final JSpinner rotation = new JSpinner(this.rotationModel);
-    private final JTextField displayName = new JTextField(10);
+    private final JCheckBox locked = new JCheckBox();
     private final JButton sprite = new JButton("Select Sprite");
     private final JButton image = new JButton("Select Image");
     private final JButton splitPointButton = new JButton("Split");
@@ -180,8 +180,8 @@ public class View extends JFrame {
         this.leafMainPropertiesPanel.add(this.scale);
         this.leafMainPropertiesPanel.add(new JLabel("Rotation"));
         this.leafMainPropertiesPanel.add(this.rotation);
-        this.leafMainPropertiesPanel.add(new JLabel("Display Name"));
-        this.leafMainPropertiesPanel.add(this.displayName);
+        this.leafMainPropertiesPanel.add(new JLabel("Lock"));
+        this.leafMainPropertiesPanel.add(this.locked);
         this.leafImagePropertiesPanel.add(new JLabel("Image"));
         this.leafImagePropertiesPanel.add(this.image);
         this.leafSpritePropertiesPanel.add(new JLabel("Sprite"));
@@ -330,6 +330,22 @@ public class View extends JFrame {
     }
 
     /**
+     * Tells you if the locked checkbox is set rn.
+     * @return the status of the locked checkbox.
+     */
+    public boolean getLocked() {
+        return this.locked.isSelected();
+    }
+
+    /**
+     * Sets the value of the locked checkbox.
+     * @param locked is the value to set it to.
+     */
+    public void setLocked(boolean locked) {
+        this.locked.setSelected(locked);
+    }
+
+    /**
      * Tells you the name in the game name box.
      * @return the name.
      */
@@ -348,6 +364,7 @@ public class View extends JFrame {
             this.setPosition(new Point());
             this.setScale(0);
             this.setRotation(0);
+            this.setLocked(false);
             this.leafName.setText("");
             this.leafImagePropertiesPanel.setVisible(false);
             this.leafSpritePropertiesPanel.setVisible(false);
@@ -365,6 +382,7 @@ public class View extends JFrame {
             this.setPosition(leaf.getTransformation().getTranslation());
             this.setScale(leaf.getTransformation().getScale());
             this.setRotation(leaf.getTransformation().getRotation());
+            this.setLocked(leaf.getLocked());
             this.leafName.setText(leaf.getName());
             if (leaf instanceof ImageLeaf) {
                 this.leafImagePropertiesPanel.setVisible(true);
@@ -551,8 +569,8 @@ public class View extends JFrame {
      * Adds a listener onto the shape display name box.
      * @param listener is the listener to add.
      */
-    public void addChangeDisplayNameListener(ActionListener listener) {
-        this.displayName.addActionListener(listener);
+    public void addChangeLockedListener(ActionListener listener) {
+        this.locked.addActionListener(listener);
     }
 
     /**

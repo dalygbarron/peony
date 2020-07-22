@@ -20,6 +20,7 @@ public abstract class Leaf implements Artefact {
     private Transformation transformation = new Transformation();
     private String name;
     private Leaf parent = null;
+    private boolean locked = false;
 
     /**
      * Leaves should never be unnamed.
@@ -67,6 +68,22 @@ public abstract class Leaf implements Artefact {
      */
     public void setParent(Leaf parent) {
         this.parent = parent;
+    }
+
+    /**
+     * Tells you whether the leaf is locked.
+     * @return true iff the leaf is locked.
+     */
+    public boolean getLocked() {
+        return this.locked;
+    }
+
+    /**
+     * Sets the leaf's locked value.
+     * @param locked is the value to give to it.
+     */
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
     /**
@@ -146,7 +163,7 @@ public abstract class Leaf implements Artefact {
             Pair<Leaf, Point> found = child.hit(t);
             if (found.getA() != null) return found;
         }
-        if (this.insideLocal(t)) return new Pair<>(this, null);
+        if (this.insideLocal(t) && !this.locked) return new Pair<>(this, null);
         return new Pair<>(null, null);
     }
 
@@ -155,7 +172,10 @@ public abstract class Leaf implements Artefact {
      * @param r is the renderer to make start doing that.
      */
     public void normalColour(Renderer r) {
-        r.setColour(r.isLeafSelected(this) ? Color.BLUE : Color.BLACK);
+        Color colour = r.isLeafSelected(this) ?
+            (this.locked ? Color.MAGENTA : Color.BLUE) :
+            (this.locked ? Color.RED : Color.BLACK);
+        r.setColour(colour);
     }
 
     /**
