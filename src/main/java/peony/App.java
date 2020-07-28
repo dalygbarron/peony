@@ -30,27 +30,6 @@ public class App {
      */
     private static void controller(View view, Model model) {
         History history = new History();
-    	// Renaming currently selected leaf.
-        view.addLeafNameListener((ActionEvent event) -> {
-            Leaf leaf = view.getSelectedLeaf();
-            if (leaf == null) return;
-            String name = view.getLeafName();
-            if (name.equals("")) {
-                view.displayError("Name cannot be blank");
-                return;
-            }
-            if (true/* TODO: fix: model.getSelectedLayout().getLeafByName(name)
-             != null */) {
-                view.displayError(String.format(
-                    "The name '%s' is already in use",
-                    name
-                ));
-                return;
-            }
-            leaf.setName(name);
-            // TODO: fix: view.updateLeafList(model.getSelectedLeafIndex(),
-            //  name);
-        });
         // Game properties button.
         view.addGamePropertiesListener((ActionEvent event) -> {
             view.displayGameProperties();

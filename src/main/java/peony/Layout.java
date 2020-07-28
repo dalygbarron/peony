@@ -33,7 +33,7 @@ public class Layout implements Artefact, TreeModel {
         this.name = "start";
         this.children = new ArrayList<>();
         this.root = new ImageLeaf();
-        this.root.setName("bg");
+        this.root.setName("root");
         this.root.setLocked(true);
     }
 
@@ -308,7 +308,9 @@ public class Layout implements Artefact, TreeModel {
     public void valueForPathChanged(TreePath path, Object newValue) {
         Leaf leaf = (Leaf)path.getLastPathComponent();
         Leaf parent = leaf.getParent();
-        if (parent == null || parent.getChildByName((String)newValue) == null) {
+        if (Util.validateName((String)newValue) &&
+            (parent == null || parent.getChildByName((String)newValue) == null)
+        ) {
             leaf.setName((String)newValue);
             this.changed(leaf);
         }
@@ -316,8 +318,7 @@ public class Layout implements Artefact, TreeModel {
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        int index =  ((Leaf)parent).getChildren().indexOf(child);
-        return index;
+        return ((Leaf)parent).getChildren().indexOf(child);
     }
 
     @Override

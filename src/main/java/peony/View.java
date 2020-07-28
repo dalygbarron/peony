@@ -91,7 +91,6 @@ public class View extends JFrame {
     private final SpinnerNumberModel yPositionModel = View.makePositionModel();
     private final SpinnerNumberModel scaleModel = View.makeScaleModel();
     private final SpinnerNumberModel rotationModel = View.makeRotationModel();
-    private final JTextField leafName = new JTextField(10);
     private final JSpinner xPosition = new JSpinner(this.xPositionModel);
     private final JSpinner yPosition = new JSpinner(this.yPositionModel);
     private final JSpinner scale = new JSpinner(this.scaleModel);
@@ -170,8 +169,6 @@ public class View extends JFrame {
         this.leafPropertiesPanel.setLayout(
             new BoxLayout(leafPropertiesPanel, BoxLayout.Y_AXIS)
         );
-        this.leafMainPropertiesPanel.add(new JLabel("Name"));
-        this.leafMainPropertiesPanel.add(this.leafName);
         this.leafMainPropertiesPanel.add(new JLabel("X Position"));
         this.leafMainPropertiesPanel.add(this.xPosition);
         this.leafMainPropertiesPanel.add(new JLabel("Y Position"));
@@ -250,14 +247,6 @@ public class View extends JFrame {
         this.mapTree.setModel(game);
         this.gameName.setText(game.getName());
         this.setLayout((Layout)game.getRoot());
-    }
-
-    /**
-     * Gives you the text that is currently written in the leaf name box.
-     * @return the written text.
-     */
-    public String getLeafName() {
-        return this.leafName.getText();
     }
 
     /**
@@ -365,7 +354,6 @@ public class View extends JFrame {
             this.setScale(0);
             this.setRotation(0);
             this.setLocked(false);
-            this.leafName.setText("");
             this.leafImagePropertiesPanel.setVisible(false);
             this.leafSpritePropertiesPanel.setVisible(false);
             this.leafShapePropertiesPanel.setVisible(false);
@@ -383,7 +371,6 @@ public class View extends JFrame {
             this.setScale(leaf.getTransformation().getScale());
             this.setRotation(leaf.getTransformation().getRotation());
             this.setLocked(leaf.getLocked());
-            this.leafName.setText(leaf.getName());
             if (leaf instanceof ImageLeaf) {
                 this.leafImagePropertiesPanel.setVisible(true);
                 this.leafSpritePropertiesPanel.setVisible(false);
@@ -442,15 +429,6 @@ public class View extends JFrame {
      */
     public void addLeafTreeListener(TreeSelectionListener listener) {
         this.leafTree.addTreeSelectionListener(listener);
-    }
-
-    /**
-     * Adds an action event listener to the input box for the currently
-     * selected leaf's name.
-     * @param listener is the listener to add.
-     */
-    public void addLeafNameListener(ActionListener listener) {
-        this.leafName.addActionListener(listener);
     }
 
     /**

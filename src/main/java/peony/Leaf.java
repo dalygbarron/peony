@@ -43,7 +43,14 @@ public abstract class Leaf implements Artefact {
      * @param name is the name to give it.
      */
     public void setName(String name) {
-        this.name = name;
+        String test = name;
+        if (this.parent != null) {
+            for (int i = 1; i < Integer.MAX_VALUE; i++) {
+                if (this.parent.getChildByName(test) == null) break;
+                test = String.format("%s%d", name, i);
+            }
+        }
+        this.name = test;
     }
 
     /**
@@ -111,13 +118,8 @@ public abstract class Leaf implements Artefact {
      * @param child is the leaf to add.
      */
     public void addChild(Leaf child) {
-        String test = child.getName();
-        for (int i = 1; i < Integer.MAX_VALUE; i++) {
-            if (this.getChildByName(test) == null) break;
-            test = String.format("%s%d", child.getName(), i);
-        }
-        child.setName(test);
         child.setParent(this);
+        child.setName(child.getName());
         this.children.add(child);
     }
 

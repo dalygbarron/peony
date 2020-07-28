@@ -140,19 +140,18 @@ public class Game implements Artefact, TreeModel {
      * Tries to rename a layout.
      * @param layout is the layout to rename.
      * @param name   is the name to give it.
-     * @return true on success and false if there is already one with that name.
      */
-    public boolean renameLayout(Layout layout, String name) {
+    public void renameLayout(Layout layout, String name) {
+        if (!Util.validateName(name)) return;
         Layout parent = layout.getParent();
         if (parent != null) {
             Layout owner = parent.getChildByName(name);
             if (owner != null && owner != layout) {
-                return false;
+                return;
             }
         }
         layout.setName(name);
         this.changeEvent(layout);
-        return true;
     }
 
     /**

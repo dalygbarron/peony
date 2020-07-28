@@ -6,11 +6,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  * Just contains some static functions and that kind of crap.
  */
 public class Util {
+    private static Pattern NAME_PATTERN = Pattern.compile(
+        "^[A-Za-z][0-9A-Za-z_]*$"
+    );
+
     /**
      * Just reads the entire content of a file into a string.
      * @param file is the file to read from.
@@ -36,5 +41,15 @@ public class Util {
         Result<String> content = Util.readFile(file);
         if (!content.success()) return Result.fail(content.message());
         return Result.ok(new JSONObject(content.value()));
+    }
+
+    /**
+     * Tells you if the given string is valid as a name for a leaf or layout.
+     * @param name is the name which must conform.
+     * @return true if the name is all good and false if not. Sadly it cannot
+     *         tell you why it fails because it does it with a regex.
+     */
+    public static boolean validateName(String name) {
+        return Util.NAME_PATTERN.matcher(name).matches();
     }
 }

@@ -127,7 +127,7 @@ public class ShapeLeaf extends Leaf {
             Pair<Leaf, Point> found = child.hit(t);
             if (found.getA() != null) return found;
         }
-        if (this.insideLocal(t)) {
+        if (this.insideLocal(t) && !this.getLocked()) {
             return new Pair<>(this, this.getPointByPosition(t));
         }
         return new Pair<>(null, null);
@@ -157,19 +157,24 @@ public class ShapeLeaf extends Leaf {
 
     @Override
     public void renderParticular(Renderer r) {
+        if (this.getLocked()) {
+            r.setColour(r.isLeafSelected(this) ? Color.MAGENTA : Color.RED);
+        }
         for (int i = 0; i < this.points.size(); i++) {
             Point point = this.points.get(i);
             Point next = this.points.get(
                 i == this.points.size() - 1 ? 0 : i + 1
             );
-            if (r.isPointSelected(point)) {
-                r.setColour(Color.GREEN);
-            } else if (r.isLeafSelected(this)) {
-                r.setColour(Color.BLUE);
-            } else {
-                r.setColour(Color.BLACK);
+            if (!this.getLocked()) {
+                if (r.isPointSelected(point)) {
+                    r.setColour(Color.GREEN);
+                } else if (r.isLeafSelected(this)) {
+                    r.setColour(Color.BLUE);
+                } else {
+                    r.setColour(Color.BLACK);
+                }
+                r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
             }
-            r.drawCircle(point, ShapeLeaf.POINT_RADIUS);
             r.drawLine(point, next);
         }
     }
